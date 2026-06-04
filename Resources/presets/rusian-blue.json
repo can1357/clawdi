@@ -1,0 +1,17 @@
+{
+  "baseColor": "#4d4d4d",
+  "eyeColor": "#2f009e",
+  "eyeBgColor": "#a0983b",
+  "oddEye": false,
+  "eyeColorLeft": "#1A1A1A",
+  "eyeColorRight": "#1A1A1A",
+  "head": [],
+  "body": [],
+  "tail": [],
+  "legFl": [],
+  "legFr": [],
+  "legRl": [],
+  "legRr": [],
+  "earL": [],
+  "earR": []
+}

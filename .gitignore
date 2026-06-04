@@ -1,0 +1,33 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Xcode user state and build products
+DerivedData/
+build/
+*.xcuserstate
+*.xcworkspace/xcuserdata/
+*.xcodeproj/xcuserdata/
+xcuserdata/
+*.xcresult
+
+# Swift Package Manager
+.build/
+.swiftpm/
+Packages/
+Package.resolved
+
+# Coverage / profiling
+*.profraw
+*.profdata
+
+# Editor and local environment
+.env
+.env.*
+*.swp
+*.swo
+
+# Tools and scripts
+Tools/*
+!Tools/release/

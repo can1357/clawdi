@@ -1,0 +1,4801 @@
+{
+  "schemaVersion": 1,
+  "components": {
+    "earLeftPathD": "M0 7V4H1V2H2V1H3V0H4V2H5V3H6V7H5V8H1V7H0Z",
+    "earRightPathD": "M1 3H0V7H1V8H4V7H5V2H4V1H3V0H2V1H1V3Z",
+    "tailPathD": "M0 8V7H6V6H8V5H9V4H8V1H9V0H11V1H12V2H13V7H12V8H11V9H9V10H4V9H1V8H0Z"
+  },
+  "poses": [
+    {
+      "name": "cat-idle-follow-v2",
+      "file": "cat-idle-follow-v2.svg",
+      "viewBox": "-8 -10 50 50",
+      "root": {
+        "tag": "svg",
+        "attrs": {
+          "viewBox": "-8 -10 50 50",
+          "width": "500",
+          "height": "500"
+        },
+        "children": [
+          {
+            "tag": "defs",
+            "attrs": {},
+            "children": [
+              {
+                "tag": "clipPath",
+                "attrs": {
+                  "id": "head-clip"
+                },
+                "children": [
+                  {
+                    "tag": "path",
+                    "attrs": {
+                      "transform": "translate(3 4)",
+                      "d": "M4 3H2V5H1V7H0V12H1V16H3V17H4V18H6V19H16V18H18V17H19V16H20V15H21V12H22V8H21V5H20V4H19V3H17V2H15V1H7V2H4V3Z"
+                    },
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "tag": "clipPath",
+                "attrs": {
+                  "id": "body-clip"
+                },
+                "children": [
+                  {
+                    "tag": "path",
+                    "attrs": {
+                      "transform": "translate(3 19)",
+                      "d": "M15 0V1H18V2H20V3H21V6H22V11H21V14H19V15H3V14H1V11H0V6H1V3H2V2H4V1H7V0H15Z"
+                    },
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "tag": "clipPath",
+                "attrs": {
+                  "id": "leg-fl-clip"
+                },
+                "children": [
+                  {
+                    "tag": "path",
+                    "attrs": {
+                      "d": "M6 29V26H7V25H10V26H11V28H12V31H13V32H14V35H13V36H9V35H8V31H7V29H6Z"
+                    },
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "tag": "clipPath",
+                "attrs": {
+                  "id": "leg-fr-clip"
+                },
+                "children": [
+                  {
+                    "tag": "path",
+                    "attrs": {
+                      "d": "M23 29V26H22V25H19V26H18V28H17V31H16V32H15V35H16V36H20V35H21V31H22V29H23Z"
+                    },
+                    "children": []
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "tag": "g",
+            "attrs": {
+              "id": "body-js"
+            },
+            "children": [
+              {
+                "tag": "g",
+                "attrs": {
+                  "class": "breathe-anim"
+                },
+                "children": [
+                  {
+                    "tag": "g",
+                    "attrs": {
+                      "class": "hunting-tail-rise"
+                    },
+                    "children": [
+                      {
+                        "tag": "g",
+                        "attrs": {
+                          "class": "tail-sway"
+                        },
+                        "children": [
+                          {
+                            "tag": "g",
+                            "attrs": {
+                              "id": "tail",
+                              "fill": "var(--cat-color)",
+                              "data-patch-frame": "20 24 1 1"
+                            },
+                            "children": []
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "tag": "g",
+                    "attrs": {
+                      "class": "hunting-body-grow"
+                    },
+                    "children": [
+                      {
+                        "tag": "g",
+                        "attrs": {
+                          "id": "body",
+                          "fill": "var(--cat-color)",
+                          "data-patch-frame": "3 19 1 1"
+                        },
+                        "children": [
+                          {
+                            "tag": "path",
+                            "attrs": {
+                              "transform": "translate(3 19)",
+                              "d": "M15 0V1H18V2H20V3H21V6H22V11H21V14H19V15H3V14H1V11H0V6H1V3H2V2H4V1H7V0H15Z"
+                            },
+                            "children": []
+                          },
+                          {
+                            "tag": "g",
+                            "attrs": {
+                              "class": "patches",
+                              "clip-path": "url(#body-clip)"
+                            },
+                            "children": []
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "tag": "g",
+                    "attrs": {
+                      "id": "legs",
+                      "fill": "var(--cat-color)"
+                    },
+                    "children": [
+                      {
+                        "tag": "g",
+                        "attrs": {
+                          "id": "leg-fl",
+                          "data-patch-frame": "6 25 1 1"
+                        },
+                        "children": [
+                          {
+                            "tag": "path",
+                            "attrs": {
+                              "d": "M6 29V26H7V25H10V26H11V28H12V31H13V32H14V35H13V36H9V35H8V31H7V29H6Z"
+                            },
+                            "children": []
+                          },
+                          {
+                            "tag": "g",
+                            "attrs": {
+                              "class": "patches",
+                              "clip-path": "url(#leg-fl-clip)"
+                            },
+                            "children": []
+                          }
+                        ]
+                      },
+                      {
+                        "tag": "g",
+                        "attrs": {
+                          "id": "leg-fr",
+                          "data-patch-frame": "15 25 1 1"
+                        },
+                        "children": [
+                          {
+                            "tag": "path",
+                            "attrs": {
+                              "d": "M23 29V26H22V25H19V26H18V28H17V31H16V32H15V35H16V36H20V35H21V31H22V29H23Z"
+                            },
+                            "children": []
+                          },
+                          {
+                            "tag": "g",
+                            "attrs": {
+                              "class": "patches",
+                              "clip-path": "url(#leg-fr-clip)"
+                            },
+                            "children": []
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "tag": "g",
+                    "attrs": {
+                      "id": "face-js"
+                    },
+                    "children": [
+                      {
+                        "tag": "g",
+                        "attrs": {
+                          "class": "whiskers-flex"
+                        },
+                        "children": [
+                          {
+                            "tag": "g",
+                            "attrs": {
+                              "id": "whiskers",
+                              "fill": "var(--cat-color)",
+                              "data-heat-overlay": "true"
+                            },
+                            "children": [
+                              {
+                                "tag": "rect",
+                                "attrs": {
+                                  "x": "0",
+                                  "y": "14",
+                                  "width": "5",
+                                  "height": "1"
+                                },
+                                "children": []
+                              },
+                              {
+                                "tag": "rect",
+                                "attrs": {
+                                  "x": "23",
+                                  "y": "14",
+                                  "width": "5",
+                                  "height": "1"
+                                },
+                                "children": []
+                              },
+                              {
+                                "tag": "rect",
+                                "attrs": {
+                                  "x": "0",
+                                  "y": "17",
+                                  "width": "6",
+                                  "height": "1"
+                                },
+                                "children": []
+                              },
+                              {
+                                "tag": "rect",
+                                "attrs": {
+                                  "x": "23",
+                                  "y": "17",
+                                  "width": "6",
+                                  "height": "1"
+                                },
+                                "children": []
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "tag": "g",
+                        "attrs": {
+                          "class": "ear-twitch-l"
+                        },
+                        "children": [
+                          {
+                            "tag": "g",
+                            "attrs": {
+                              "id": "ear-left",
+                              "data-ear-position": "5 2"
+                            },
+                            "children": []
+                          }
+                        ]
+                      },
+                      {
+                        "tag": "g",
+                        "attrs": {
+                          "class": "ear-twitch-r"
+                        },
+                        "children": [
+                          {
+                            "tag": "g",
+                            "attrs": {
+                              "id": "ear-right",
+                              "data-ear-position": "17 2"
+                            },
+                            "children": []
+                          }
+                        ]
+                      },
+                      {
+                        "tag": "g",
+                        "attrs": {
+                          "id": "head",
+                          "fill": "var(--cat-color)",
+                          "data-patch-frame": "3 5 1 1"
+                        },
+                        "children": [
+                          {
+                            "tag": "path",
+                            "attrs": {
+                              "transform": "translate(3 4)",
+                              "d": "M4 3H2V5H1V7H0V12H1V16H3V17H4V18H6V19H16V18H18V17H19V16H20V15H21V12H22V8H21V5H20V4H19V3H17V2H15V1H7V2H4V3Z"
+                            },
+                            "children": []
+                          },
+                          {
+                            "tag": "g",
+                            "attrs": {
+                              "class": "patches",
+                              "clip-path": "url(#head-clip)"
+                            },
+                            "children": []
+                          }
+                        ]
+                      },
+                      {
+                        "tag": "g",
+                        "attrs": {
+                          "id": "eyes-js"
+                        },
+                        "children": [
+                          {
+                            "tag": "g",
+                            "attrs": {
+                              "class": "eye-l-blink"
+                            },
+                            "children": [
+                              {
+                                "tag": "g",
+                                "attrs": {
+                                  "id": "eye-left"
+                                },
+                                "children": [
+                                  {
+                                    "tag": "g",
+                                    "attrs": {
+                                      "fill": "var(--eye-bg-color, #FFFFFF)"
+                                    },
+                                    "children": [
+                                      {
+                                        "tag": "rect",
+                                        "attrs": {
+                                          "x": "7",
+                                          "y": "11",
+                                          "width": "1",
+                                          "height": "3"
+                                        },
+                                        "children": []
+                                      },
+                                      {
+                                        "tag": "rect",
+                                        "attrs": {
+                                          "x": "11",
+                                          "y": "11",
+                                          "width": "1",
+                                          "height": "3"
+                                        },
+                                        "children": []
+                                      },
+                                      {
+                                        "tag": "rect",
+                                        "attrs": {
+                                          "x": "8",
+                                          "y": "10",
+                                          "width": "3",
+                                          "height": "5"
+                                        },
+                                        "children": []
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "tag": "rect",
+                                    "attrs": {
+                                      "id": "pupil-left",
+                                      "class": "pupil-left",
+                                      "x": "8",
+                                      "y": "11",
+                                      "width": "3",
+                                      "height": "3",
+                                      "fill": "var(--eye-color-left, var(--eye-color, var(--cat-color)))"
+                                    },
+                                    "children": []
+                                  }
+                                ]
+                              }
+                            ]
+                          },
+                          {
+                            "tag": "g",
+                            "attrs": {
+                              "class": "eye-r-blink"
+                            },
+                            "children": [
+                              {
+                                "tag": "g",
+                                "attrs": {
+                                  "id": "eye-right"
+                                },
+                                "children": [
+                                  {
+                                    "tag": "g",
+                                    "attrs": {
+                                      "fill": "var(--eye-bg-color, #FFFFFF)"
+                                    },
+                                    "children": [
+                                      {
+                                        "tag": "rect",
+                                        "attrs": {
+                                          "x": "16",
+                                          "y": "11",
+                                          "width": "1",
+                                          "height": "3"
+                                        },
+                                        "children": []
+                                      },
+                                      {
+                                        "tag": "rect",
+                                        "attrs": {
+                                          "x": "20",
+                                          "y": "11",
+                                          "width": "1",
+                                          "height": "3"
+                                        },
+                                        "children": []
+                                      },
+                                      {
+                                        "tag": "rect",
+                                        "attrs": {
+                                          "x": "17",
+                                          "y": "10",
+                                          "width": "3",
+                                          "height": "5"
+                                        },
+                                        "children": []
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "tag": "rect",
+                                    "attrs": {
+                                      "id": "pupil-right",
+                                      "class": "pupil-right",
+                                      "x": "17",
+                                      "y": "11",
+                                      "width": "3",
+                                      "height": "3",
+                                      "fill": "var(--eye-color-right, var(--eye-color, var(--cat-color)))"
+                                    },
+                                    "children": []
+                                  }
+                                ]
+                              }
+                            ]
+                          },
+                          {
+                            "tag": "rect",
+                            "attrs": {
+                              "class": "closed-eye-line",
+                              "x": "7",
+                              "y": "12",
+                              "width": "5",
+                              "height": "1",
+                              "fill": "var(--cat-outline)"
+                            },
+                            "children": []
+                          },
+                          {
+                            "tag": "rect",
+                            "attrs": {
+                              "class": "closed-eye-line",
+                              "x": "16",
+                              "y": "12",
+                              "width": "5",
+                              "height": "1",
+                              "fill": "var(--cat-outline)"
+                            },
+                            "children": []
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "jump-ing",
+      "file": "jump-ing.svg",
+      "viewBox": "0 0 40 62",
+      "root": {
+        "tag": "svg",
+        "attrs": {
+          "width": "40",
+          "height": "62",
+          "viewBox": "0 0 40 62",
+          "fill": "none"
+        },
+        "children": [
+          {
+            "tag": "defs",
+            "attrs": {},
+            "children": [
+              {
+                "tag": "clipPath",
+                "attrs": {
+                  "id": "head-clip"
+                },
+                "children": [
+                  {
+                    "tag": "path",
+                    "attrs": {
+                      "d": "M13 7H11V9H10V11H9V16H10V20H12V21H13V22H15V23H25V22H27V21H28V20H29V19H30V16H31V12H30V9H29V8H28V7H26V6H24V5H16V6H13V7Z"
+                    },
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "tag": "clipPath",
+                "attrs": {
+                  "id": "body-clip"
+                },
+                "children": [
+                  {
+                    "tag": "path",
+                    "attrs": {
+                      "d": "M13 21H27V23H28V33H29V40.5H30V45.5H10V40.5H11V33H12V23H13V21Z"
+                    },
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "tag": "clipPath",
+                "attrs": {
+                  "id": "leg-rl-clip"
+                },
+                "children": [
+                  {
+                    "tag": "path",
+                    "attrs": {
+                      "d": "M10 46V42H18V46H17V48H16V50H12V48H11V46H10Z"
+                    },
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "tag": "clipPath",
+                "attrs": {
+                  "id": "leg-rr-clip"
+                },
+                "children": [
+                  {
+                    "tag": "path",
+                    "attrs": {
+                      "d": "M22 46V42H30V46H29V48H28V50H24V48H23V46H22Z"
+                    },
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "tag": "clipPath",
+                "attrs": {
+                  "id": "leg-fl-clip"
+                },
+                "children": [
+                  {
+                    "tag": "path",
+                    "attrs": {
+                      "d": "M11 37H10L10 27H11L11 26L12 26V25L15 25L15 37H14V38H11L11 37Z"
+                    },
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "tag": "clipPath",
+                "attrs": {
+                  "id": "leg-fr-clip"
+                },
+                "children": [
+                  {
+                    "tag": "path",
+                    "attrs": {
+                      "d": "M29 37H30L30 27H29V26L28 26V25L25 25L25 37H26V38H29V37Z"
+                    },
+                    "children": []
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "tag": "g",
+            "attrs": {
+              "id": "cat-content"
+            },
+            "children": [
+              {
+                "tag": "g",
+                "attrs": {
+                  "id": "leg-fl",
+                  "data-patch-frame": "10 25 0.625 1.182"
+                },
+                "children": [
+                  {
+                    "tag": "animateTransform",
+                    "attrs": {},
+                    "children": []
+                  },
+                  {
+                    "tag": "path",
+                    "attrs": {
+                      "d": "M11 37H10L10 27H11L11 26L12 26V25L15 25L15 37H14V38H11L11 37Z",
+                      "fill": "var(--cat-color)"
+                    },
+                    "children": []
+                  },
+                  {
+                    "tag": "g",
+                    "attrs": {
+                      "class": "patches",
+                      "clip-path": "url(#leg-fl-clip)"
+                    },
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "tag": "g",
+                "attrs": {
+                  "id": "leg-fr",
+                  "data-patch-frame": "25 25 0.625 1.182"
+                },
+                "children": [
+                  {
+                    "tag": "animateTransform",
+                    "attrs": {},
+                    "children": []
+                  },
+                  {
+                    "tag": "path",
+                    "attrs": {
+                      "d": "M29 37H30L30 27H29V26L28 26V25L25 25L25 37H26V38H29V37Z",
+                      "fill": "var(--cat-color)"
+                    },
+                    "children": []
+                  },
+                  {
+                    "tag": "g",
+                    "attrs": {
+                      "class": "patches",
+                      "clip-path": "url(#leg-fr-clip)"
+                    },
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "tag": "g",
+                "attrs": {
+                  "id": "head",
+                  "data-patch-frame": "9 5 1 1"
+                },
+                "children": [
+                  {
+                    "tag": "path",
+                    "attrs": {
+                      "d": "M13 7H11V9H10V11H9V16H10V20H12V21H13V22H15V23H25V22H27V21H28V20H29V19H30V16H31V12H30V9H29V8H28V7H26V6H24V5H16V6H13V7Z",
+                      "fill": "var(--cat-color)"
+                    },
+                    "children": []
+                  },
+                  {
+                    "tag": "g",
+                    "attrs": {
+                      "class": "patches",
+                      "clip-path": "url(#head-clip)"
+                    },
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "tag": "g",
+                "attrs": {
+                  "id": "tail",
+                  "data-patch-frame": "26 32 1 1"
+                },
+                "children": []
+              },
+              {
+                "tag": "g",
+                "attrs": {
+                  "id": "whiskers",
+                  "data-heat-overlay": "true"
+                },
+                "children": [
+                  {
+                    "tag": "rect",
+                    "attrs": {
+                      "width": "5",
+                      "height": "1.02083",
+                      "transform": "translate(6 13)",
+                      "fill": "var(--cat-color)"
+                    },
+                    "children": []
+                  },
+                  {
+                    "tag": "rect",
+                    "attrs": {
+                      "width": "5",
+                      "height": "1.02083",
+                      "transform": "translate(29 13)",
+                      "fill": "var(--cat-color)"
+                    },
+                    "children": []
+                  },
+                  {
+                    "tag": "rect",
+                    "attrs": {
+                      "width": "6",
+                      "height": "1.02083",
+                      "transform": "translate(5 16)",
+                      "fill": "var(--cat-color)"
+                    },
+                    "children": []
+                  },
+                  {
+                    "tag": "rect",
+                    "attrs": {
+                      "width": "6",
+                      "height": "1.02083",
+                      "transform": "translate(29 16)",
+                      "fill": "var(--cat-color)"
+                    },
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "tag": "g",
+                "attrs": {
+                  "id": "ear-left",
+                  "data-ear-position": "11 1"
+                },
+                "children": []
+              },
+              {
+                "tag": "g",
+                "attrs": {
+                  "id": "ear-right",
+                  "data-ear-position": "24 1"
+                },
+                "children": []
+              },
+              {
+                "tag": "g",
+                "attrs": {
+                  "id": "leg-rl",
+                  "data-patch-frame": "10 42 1 1"
+                },
+                "children": [
+                  {
+                    "tag": "animateTransform",
+                    "attrs": {},
+                    "children": []
+                  },
+                  {
+                    "tag": "path",
+                    "attrs": {
+                      "d": "M10 46V42H18V46H17V48H16V50H12V48H11V46H10Z",
+                      "fill": "var(--cat-color)"
+                    },
+                    "children": []
+                  },
+                  {
+                    "tag": "g",
+                    "attrs": {
+                      "class": "patches",
+                      "clip-path": "url(#leg-rl-clip)"
+                    },
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "tag": "g",
+                "attrs": {
+                  "id": "leg-rr",
+                  "data-patch-frame": "22 42 1 1"
+                },
+                "children": [
+                  {
+                    "tag": "animateTransform",
+                    "attrs": {},
+                    "children": []
+                  },
+                  {
+                    "tag": "path",
+                    "attrs": {
+                      "d": "M22 46V42H30V46H29V48H28V50H24V48H23V46H22Z",
+                      "fill": "var(--cat-color)"
+                    },
+                    "children": []
+                  },
+                  {
+                    "tag": "g",
+                    "attrs": {
+                      "class": "patches",
+                      "clip-path": "url(#leg-rr-clip)"
+                    },
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "tag": "g",
+                "attrs": {
+                  "id": "body",
+                  "data-patch-frame": "10 25 0.909 1.367"
+                },
+                "children": [
+                  {
+                    "tag": "path",
+                    "attrs": {
+                      "d": "M13 21H27V23H28V33H29V40.5H30V45.5H10V40.5H11V33H12V23H13V21Z",
+                      "fill": "var(--cat-color)"
+                    },
+                    "children": []
+                  },
+                  {
+                    "tag": "g",
+                    "attrs": {
+                      "class": "patches",
+                      "clip-path": "url(#body-clip)"
+                    },
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "tag": "path",
+                "attrs": {
+                  "d": "M13 12L17 14L13 16",
+                  "stroke": "var(--cat-outline, #FFFFFF)"
+                },
+                "children": []
+              },
+              {
+                "tag": "path",
+                "attrs": {
+                  "d": "M27 12L23 14L27 16",
+                  "stroke": "var(--cat-outline, #FFFFFF)"
+                },
+                "children": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "jump-start",
+      "file": "jump-start.svg",
+      "viewBox": "0 0 40 62",
+      "root": {
+        "tag": "svg",
+        "attrs": {
+          "width": "40",
+          "height": "62",
+          "viewBox": "0 0 40 62",
+          "fill": "none"
+        },
+        "children": [
+          {
+            "tag": "defs",
+            "attrs": {},
+            "children": [
+              {
+                "tag": "clipPath",
+                "attrs": {
+                  "id": "head-clip"
+                },
+                "children": [
+                  {
+                    "tag": "path",
+                    "attrs": {
+                      "d": "M13 18H11V20H10V22H9V27H10V31H12V32H13V33H15V34H25V33H27V32H28V31H29V30H30V27H31V23H30V20H29V19H28V18H26V17H24V16H16V17H13V18Z"
+                    },
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "tag": "clipPath",
+                "attrs": {
+                  "id": "body-clip"
+                },
+                "children": [
+                  {
+                    "tag": "path",
+                    "attrs": {
+                      "d": "M13 32H27V34H28V44H29V50H30V55H10V50H11V44H12V34H13V32Z"
+                    },
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "tag": "clipPath",
+                "attrs": {
+                  "id": "leg-rl-clip"
+                },
+                "children": [
+                  {
+                    "tag": "path",
+                    "attrs": {
+                      "d": "M10 56V52H18V56H17V58H16V60H12V58H11V56H10Z"
+                    },
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "tag": "clipPath",
+                "attrs": {
+                  "id": "leg-rr-clip"
+                },
+                "children": [
+                  {
+                    "tag": "path",
+                    "attrs": {
+                      "d": "M22 56V52H30V56H29V58H28V60H24V58H23V56H22Z"
+                    },
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "tag": "clipPath",
+                "attrs": {
+                  "id": "leg-fl-clip"
+                },
+                "children": [
+                  {
+                    "tag": "path",
+                    "attrs": {
+                      "d": "M12 48H11L11 38H12L12 37L13 37V36L16 36L16 48H15V49H12L12 48Z"
+                    },
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "tag": "clipPath",
+                "attrs": {
+                  "id": "leg-fr-clip"
+                },
+                "children": [
+                  {
+                    "tag": "path",
+                    "attrs": {
+                      "d": "M28 48H29L29 38H28V37L27 37V36L24 36L24 48H25V49H28V48Z"
+                    },
+                    "children": []
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "tag": "g",
+            "attrs": {
+              "id": "cat-content"
+            },
+            "children": [
+              {
+                "tag": "g",
+                "attrs": {
+                  "id": "leg-fl",
+                  "data-patch-frame": "11 36 0.625 1.182"
+                },
+                "children": [
+                  {
+                    "tag": "animateTransform",
+                    "attrs": {},
+                    "children": []
+                  },
+                  {
+                    "tag": "path",
+                    "attrs": {
+                      "d": "M12 48H11L11 38H12L12 37L13 37V36L16 36L16 48H15V49H12L12 48Z",
+                      "fill": "var(--cat-color)"
+                    },
+                    "children": []
+                  },
+                  {
+                    "tag": "g",
+                    "attrs": {
+                      "class": "patches",
+                      "clip-path": "url(#leg-fl-clip)"
+                    },
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "tag": "g",
+                "attrs": {
+                  "id": "leg-fr",
+                  "data-patch-frame": "24 36 0.625 1.182"
+                },
+                "children": [
+                  {
+                    "tag": "animateTransform",
+                    "attrs": {},
+                    "children": []
+                  },
+                  {
+                    "tag": "path",
+                    "attrs": {
+                      "d": "M28 48H29L29 38H28V37L27 37V36L24 36L24 48H25V49H28V48Z",
+                      "fill": "var(--cat-color)"
+                    },
+                    "children": []
+                  },
+                  {
+                    "tag": "g",
+                    "attrs": {
+                      "class": "patches",
+                      "clip-path": "url(#leg-fr-clip)"
+                    },
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "tag": "g",
+                "attrs": {
+                  "id": "head",
+                  "data-patch-frame": "9 16 1 1"
+                },
+                "children": [
+                  {
+                    "tag": "path",
+                    "attrs": {
+                      "d": "M13 18H11V20H10V22H9V27H10V31H12V32H13V33H15V34H25V33H27V32H28V31H29V30H30V27H31V23H30V20H29V19H28V18H26V17H24V16H16V17H13V18Z",
+                      "fill": "var(--cat-color)"
+                    },
+                    "children": []
+                  },
+                  {
+                    "tag": "g",
+                    "attrs": {
+                      "class": "patches",
+                      "clip-path": "url(#head-clip)"
+                    },
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "tag": "g",
+                "attrs": {
+                  "id": "tail",
+                  "data-patch-frame": "26 43 1 1"
+                },
+                "children": []
+              },
+              {
+                "tag": "g",
+                "attrs": {
+                  "id": "whiskers",
+                  "data-heat-overlay": "true"
+                },
+                "children": [
+                  {
+                    "tag": "rect",
+                    "attrs": {
+                      "width": "5",
+                      "height": "1.02083",
+                      "transform": "translate(6 24)",
+                      "fill": "var(--cat-color)"
+                    },
+                    "children": []
+                  },
+                  {
+                    "tag": "rect",
+                    "attrs": {
+                      "width": "5",
+                      "height": "1.02083",
+                      "transform": "translate(29 24)",
+                      "fill": "var(--cat-color)"
+                    },
+                    "children": []
+                  },
+                  {
+                    "tag": "rect",
+                    "attrs": {
+                      "width": "6",
+                      "height": "1.02083",
+                      "transform": "translate(5 27)",
+                      "fill": "var(--cat-color)"
+                    },
+                    "children": []
+                  },
+                  {
+                    "tag": "rect",
+                    "attrs": {
+                      "width": "6",
+                      "height": "1.02083",
+                      "transform": "translate(29 27)",
+                      "fill": "var(--cat-color)"
+                    },
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "tag": "g",
+                "attrs": {
+                  "id": "ear-left",
+                  "data-ear-position": "11 12"
+                },
+                "children": []
+              },
+              {
+                "tag": "g",
+                "attrs": {
+                  "id": "ear-right",
+                  "data-ear-position": "24 12"
+                },
+                "children": []
+              },
+              {
+                "tag": "rect",
+                "attrs": {
+                  "width": "1",
+                  "height": "3.0625",
+                  "transform": "translate(22 23.0205)",
+                  "fill": "var(--eye-bg-color, #FFFFFF)"
+                },
+                "children": []
+              },
+              {
+                "tag": "rect",
+                "attrs": {
+                  "width": "1",
+                  "height": "3.0625",
+                  "transform": "translate(26 23.0205)",
+                  "fill": "var(--eye-bg-color, #FFFFFF)"
+                },
+                "children": []
+              },
+              {
+                "tag": "rect",
+                "attrs": {
+                  "width": "3",
+                  "height": "5.10417",
+                  "transform": "translate(23 22)",
+                  "fill": "var(--eye-bg-color, #FFFFFF)"
+                },
+                "children": []
+              },
+              {
+                "tag": "rect",
+                "attrs": {
+                  "class": "pupil-right",
+                  "width": "3",
+                  "height": "3.0625",
+                  "transform": "translate(23 23.0205)",
+                  "fill": "var(--eye-color-right, var(--eye-color, var(--cat-color)))"
+                },
+                "children": []
+              },
+              {
+                "tag": "rect",
+                "attrs": {
+                  "width": "1",
+                  "height": "3.0625",
+                  "transform": "translate(13 23.0205)",
+                  "fill": "var(--eye-bg-color, #FFFFFF)"
+                },
+                "children": []
+              },
+              {
+                "tag": "rect",
+                "attrs": {
+                  "width": "1",
+                  "height": "3.0625",
+                  "transform": "translate(17 23.0205)",
+                  "fill": "var(--eye-bg-color, #FFFFFF)"
+                },
+                "children": []
+              },
+              {
+                "tag": "rect",
+                "attrs": {
+                  "width": "3",
+                  "height": "5.10417",
+                  "transform": "translate(14 22)",
+                  "fill": "var(--eye-bg-color, #FFFFFF)"
+                },
+                "children": []
+              },
+              {
+                "tag": "rect",
+                "attrs": {
+                  "class": "pupil-left",
+                  "width": "3",
+                  "height": "3.0625",
+                  "transform": "translate(14 23.0205)",
+                  "fill": "var(--eye-color-left, var(--eye-color, var(--cat-color)))"
+                },
+                "children": []
+              },
+              {
+                "tag": "g",
+                "attrs": {
+                  "id": "leg-rl",
+                  "data-patch-frame": "10 52 1 1"
+                },
+                "children": [
+                  {
+                    "tag": "path",
+                    "attrs": {
+                      "d": "M10 56V52H18V56H17V58H16V60H12V58H11V56H10Z",
+                      "fill": "var(--cat-color)"
+                    },
+                    "children": []
+                  },
+                  {
+                    "tag": "g",
+                    "attrs": {
+                      "class": "patches",
+                      "clip-path": "url(#leg-rl-clip)"
+                    },
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "tag": "g",
+                "attrs": {
+                  "id": "leg-rr",
+                  "data-patch-frame": "22 52 1 1"
+                },
+                "children": [
+                  {
+                    "tag": "path",
+                    "attrs": {
+                      "d": "M22 56V52H30V56H29V58H28V60H24V58H23V56H22Z",
+                      "fill": "var(--cat-color)"
+                    },
+                    "children": []
+                  },
+                  {
+                    "tag": "g",
+                    "attrs": {
+                      "class": "patches",
+                      "clip-path": "url(#leg-rr-clip)"
+                    },
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "tag": "g",
+                "attrs": {
+                  "id": "body",
+                  "data-patch-frame": "10 36 0.909 1.267"
+                },
+                "children": [
+                  {
+                    "tag": "path",
+                    "attrs": {
+                      "d": "M13 32H27V34H28V44H29V50H30V55H10V50H11V44H12V34H13V32Z",
+                      "fill": "var(--cat-color)"
+                    },
+                    "children": []
+                  },
+                  {
+                    "tag": "g",
+                    "attrs": {
+                      "class": "patches",
+                      "clip-path": "url(#body-clip)"
+                    },
+                    "children": []
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "press-left",
+      "file": "press-left.svg",
+      "viewBox": "-2 -2 50 50",
+      "root": {
+        "tag": "svg",
+        "attrs": {
+          "width": "50",
+          "height": "50",
+          "viewBox": "-2 -2 50 50",
+          "fill": "none"
+        },
+        "children": [
+          {
+            "tag": "defs",
+            "attrs": {},
+            "children": [
+              {
+                "tag": "clipPath",
+                "attrs": {
+                  "id": "head-clip"
+                },
+                "children": [
+                  {
+                    "tag": "path",
+                    "attrs": {
+                      "d": "M13 9H11V11H10V13H9V18H10V22H12V23H13V24H15V25H25V24H27V23H28V22H29V21H30V18H31V14H30V11H29V10H28V9H26V8H24V7H16V8H13V9Z"
+                    },
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "tag": "clipPath",
+                "attrs": {
+                  "id": "leg-fl-clip"
+                },
+                "children": [
+                  {
+                    "tag": "path",
+                    "attrs": {
+                      "d": "M12 30V21H13V20H14V19H17V20H18V21H19V32.5H18V36H17V37H16V38H10V34H11V30H12Z"
+                    },
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "tag": "clipPath",
+                "attrs": {
+                  "id": "leg-fr-clip"
+                },
+                "children": [
+                  {
+                    "tag": "path",
+                    "attrs": {
+                      "d": "M24 30H25V21.5H26V17H27V16H31V17H32V18H33V25H32V27H31V29.5V32.5H30V34H25V33H24V30Z"
+                    },
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "tag": "clipPath",
+                "attrs": {
+                  "id": "body-clip"
+                },
+                "children": [
+                  {
+                    "tag": "path",
+                    "attrs": {
+                      "d": "M33 15V14H31V13H24.5H18V16H15V17H14V20.5H15V23.5H16V24.5H17V25.5H18V26.5H20.5V27.5H21.5V36.5H39V23H38V20H37V18H36V17H35V16H34V15H33Z"
+                    },
+                    "children": []
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "tag": "g",
+            "attrs": {
+              "id": "cat-content"
+            },
+            "children": [
+              {
+                "tag": "g",
+                "attrs": {
+                  "id": "tail",
+                  "data-patch-frame": "32 12 1 1"
+                },
+                "children": []
+              },
+              {
+                "tag": "g",
+                "attrs": {
+                  "id": "body",
+                  "data-patch-frame": "14 13 1.136 1.6"
+                },
+                "children": [
+                  {
+                    "tag": "path",
+                    "attrs": {
+                      "d": "M33 15V14H31V13H24.5H18V16H15V17H14V20.5H15V23.5H16V24.5H17V25.5H18V26.5H20.5V27.5H21.5V36.5H39V23H38V20H37V18H36V17H35V16H34V15H33Z",
+                      "fill": "var(--cat-color)"
+                    },
+                    "children": []
+                  },
+                  {
+                    "tag": "g",
+                    "attrs": {
+                      "class": "patches",
+                      "clip-path": "url(#body-clip)"
+                    },
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "tag": "path",
+                "attrs": {
+                  "d": "M4 33V32H5V31H18V32H19V35H18V38H17V40H16V42H1V41H0V39H1V37H2V35H3V33H4Z",
+                  "fill": "#999797"
+                },
+                "children": []
+              },
+              {
+                "tag": "path",
+                "attrs": {
+                  "d": "M0 41H1V42H16V44H15H2V43H1V42H0V41Z",
+                  "fill": "#605E5E"
+                },
+                "children": []
+              },
+              {
+                "tag": "path",
+                "attrs": {
+                  "d": "M16 44H15V42H16V40H17V38H18V35H19V33H20V35.5H19V38.5H18V41H17V43H16V44Z",
+                  "fill": "#222222"
+                },
+                "children": []
+              },
+              {
+                "tag": "rect",
+                "attrs": {
+                  "x": "2",
+                  "y": "41",
+                  "width": "13",
+                  "height": "1",
+                  "fill": "#D7D6D6"
+                },
+                "children": []
+              },
+              {
+                "tag": "rect",
+                "attrs": {
+                  "y": "39",
+                  "width": "1",
+                  "height": "1",
+                  "fill": "#D9D9D9"
+                },
+                "children": []
+              },
+              {
+                "tag": "rect",
+                "attrs": {
+                  "x": "1",
+                  "y": "40",
+                  "width": "1",
+                  "height": "1",
+                  "fill": "#D9D9D9"
+                },
+                "children": []
+              },
+              {
+                "tag": "rect",
+                "attrs": {
+                  "x": "15",
+                  "y": "40",
+                  "width": "1",
+                  "height": "1",
+                  "fill": "#D9D9D9"
+                },
+                "children": []
+              },
+              {
+                "tag": "rect",
+                "attrs": {
+                  "x": "16",
+                  "y": "39",
+                  "width": "1",
+                  "height": "1",
+                  "fill": "#D9D9D9"
+                },
+                "children": []
+              },
+              {
+                "tag": "path",
+                "attrs": {
+                  "d": "M24 29V28H25V27H38V28H39V31H38V34H37V36H36V38H21V37H20V35H21V33H22V31H23V29H24Z",
+                  "fill": "#999797"
+                },
+                "children": []
+              },
+              {
+                "tag": "path",
+                "attrs": {
+                  "d": "M20 37H21V38H36V44H35H22V43H21V42H20V37Z",
+                  "fill": "#605E5E"
+                },
+                "children": []
+              },
+              {
+                "tag": "path",
+                "attrs": {
+                  "d": "M36 44H35V42H36V36H37V34H38V31H39V29H40V35.5H39V38.5H38V41H37V43H36V44Z",
+                  "fill": "#222222"
+                },
+                "children": []
+              },
+              {
+                "tag": "rect",
+                "attrs": {
+                  "x": "22",
+                  "y": "37",
+                  "width": "13",
+                  "height": "1",
+                  "fill": "#D7D6D6"
+                },
+                "children": []
+              },
+              {
+                "tag": "rect",
+                "attrs": {
+                  "x": "20",
+                  "y": "35",
+                  "width": "1",
+                  "height": "1",
+                  "fill": "#D9D9D9"
+                },
+                "children": []
+              },
+              {
+                "tag": "rect",
+                "attrs": {
+                  "x": "21",
+                  "y": "36",
+                  "width": "1",
+                  "height": "1",
+                  "fill": "#D9D9D9"
+                },
+                "children": []
+              },
+              {
+                "tag": "rect",
+                "attrs": {
+                  "x": "35",
+                  "y": "36",
+                  "width": "1",
+                  "height": "1",
+                  "fill": "#D9D9D9"
+                },
+                "children": []
+              },
+              {
+                "tag": "rect",
+                "attrs": {
+                  "x": "36",
+                  "y": "35",
+                  "width": "1",
+                  "height": "1",
+                  "fill": "#D9D9D9"
+                },
+                "children": []
+              },
+              {
+                "tag": "g",
+                "attrs": {
+                  "id": "leg-fl",
+                  "data-patch-frame": "10 19 1.125 1.727"
+                },
+                "children": [
+                  {
+                    "tag": "path",
+                    "attrs": {
+                      "d": "M12 30V21H13V20H14V19H17V20H18V21H19V32.5H18V36H17V37H16V38H10V34H11V30H12Z",
+                      "fill": "var(--cat-color)"
+                    },
+                    "children": []
+                  },
+                  {
+                    "tag": "g",
+                    "attrs": {
+                      "class": "patches",
+                      "clip-path": "url(#leg-fl-clip)"
+                    },
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "tag": "g",
+                "attrs": {
+                  "id": "leg-fr",
+                  "data-patch-frame": "24 16 1.125 1.636"
+                },
+                "children": [
+                  {
+                    "tag": "path",
+                    "attrs": {
+                      "d": "M24 30H25V21.5H26V17H27V16H31V17H32V18H33V25H32V27H31V29.5V32.5H30V34H25V33H24V30Z",
+                      "fill": "var(--cat-color)"
+                    },
+                    "children": []
+                  },
+                  {
+                    "tag": "g",
+                    "attrs": {
+                      "class": "patches",
+                      "clip-path": "url(#leg-fr-clip)"
+                    },
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "tag": "g",
+                "attrs": {
+                  "id": "head",
+                  "data-patch-frame": "9 7 1 1"
+                },
+                "children": [
+                  {
+                    "tag": "path",
+                    "attrs": {
+                      "d": "M13 9H11V11H10V13H9V18H10V22H12V23H13V24H15V25H25V24H27V23H28V22H29V21H30V18H31V14H30V11H29V10H28V9H26V8H24V7H16V8H13V9Z",
+                      "fill": "var(--cat-color)"
+                    },
+                    "children": []
+                  },
+                  {
+                    "tag": "g",
+                    "attrs": {
+                      "class": "patches",
+                      "clip-path": "url(#head-clip)"
+                    },
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "tag": "g",
+                "attrs": {
+                  "id": "whiskers",
+                  "data-heat-overlay": "true"
+                },
+                "children": [
+                  {
+                    "tag": "rect",
+                    "attrs": {
+                      "width": "6",
+                      "height": "1",
+                      "transform": "translate(5 17)",
+                      "fill": "var(--cat-color)"
+                    },
+                    "children": []
+                  },
+                  {
+                    "tag": "rect",
+                    "attrs": {
+                      "width": "6",
+                      "height": "1",
+                      "transform": "translate(6 20)",
+                      "fill": "var(--cat-color)"
+                    },
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "tag": "g",
+                "attrs": {
+                  "id": "ear-left",
+                  "data-ear-position": "11 3"
+                },
+                "children": []
+              },
+              {
+                "tag": "g",
+                "attrs": {
+                  "id": "ear-right",
+                  "data-ear-position": "23 3"
+                },
+                "children": []
+              },
+              {
+                "tag": "g",
+                "attrs": {},
+                "children": [
+                  {
+                    "tag": "rect",
+                    "attrs": {
+                      "width": "1",
+                      "height": "3",
+                      "transform": "translate(20 15)",
+                      "fill": "var(--eye-bg-color, #FFFFFF)"
+                    },
+                    "children": []
+                  },
+                  {
+                    "tag": "rect",
+                    "attrs": {
+                      "width": "1",
+                      "height": "3",
+                      "transform": "translate(24 15)",
+                      "fill": "var(--eye-bg-color, #FFFFFF)"
+                    },
+                    "children": []
+                  },
+                  {
+                    "tag": "rect",
+                    "attrs": {
+                      "width": "3",
+                      "height": "5",
+                      "transform": "translate(21 14)",
+                      "fill": "var(--eye-bg-color, #FFFFFF)"
+                    },
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "tag": "rect",
+                "attrs": {
+                  "class": "pupil-right",
+                  "width": "3",
+                  "height": "3",
+                  "transform": "translate(21 15)",
+                  "fill": "var(--eye-color-right, var(--eye-color, var(--cat-color)))"
+                },
+                "children": []
+              },
+              {
+                "tag": "g",
+                "attrs": {},
+                "children": [
+                  {
+                    "tag": "rect",
+                    "attrs": {
+                      "width": "1",
+                      "height": "3",
+                      "transform": "translate(11 15)",
+                      "fill": "var(--eye-bg-color, #FFFFFF)"
+                    },
+                    "children": []
+                  },
+                  {
+                    "tag": "rect",
+                    "attrs": {
+                      "width": "1",
+                      "height": "3",
+                      "transform": "translate(15 15)",
+                      "fill": "var(--eye-bg-color, #FFFFFF)"
+                    },
+                    "children": []
+                  },
+                  {
+                    "tag": "rect",
+                    "attrs": {
+                      "width": "3",
+                      "height": "5",
+                      "transform": "translate(12 14)",
+                      "fill": "var(--eye-bg-color, #FFFFFF)"
+                    },
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "tag": "rect",
+                "attrs": {
+                  "class": "pupil-left",
+                  "width": "3",
+                  "height": "3",
+                  "transform": "translate(12 15)",
+                  "fill": "var(--eye-color-left, var(--eye-color, var(--cat-color)))"
+                },
+                "children": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "press-right",
+      "file": "press-right.svg",
+      "viewBox": "-2 -2 50 50",
+      "root": {
+        "tag": "svg",
+        "attrs": {
+          "width": "50",
+          "height": "50",
+          "viewBox": "-2 -2 50 50",
+          "fill": "none"
+        },
+        "children": [
+          {
+            "tag": "defs",
+            "attrs": {},
+            "children": [
+              {
+                "tag": "clipPath",
+                "attrs": {
+                  "id": "head-clip"
+                },
+                "children": [
+                  {
+                    "tag": "path",
+                    "attrs": {
+                      "d": "M13 9H11V11H10V13H9V18H10V22H12V23H13V24H15V25H25V24H27V23H28V22H29V21H30V18H31V14H30V11H29V10H28V9H26V8H24V7H16V8H13V9Z"
+                    },
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "tag": "clipPath",
+                "attrs": {
+                  "id": "leg-fl-clip"
+                },
+                "children": [
+                  {
+                    "tag": "path",
+                    "attrs": {
+                      "d": "M12 25V16H13V15H14V14H17V15H18V16H19V27.5H18V31H17V32H16V33H10V29H11V25H12Z"
+                    },
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "tag": "clipPath",
+                "attrs": {
+                  "id": "leg-fr-clip"
+                },
+                "children": [
+                  {
+                    "tag": "path",
+                    "attrs": {
+                      "d": "M23 36H24V27.5H25V23H26V22H30V23H31V24H32V31H31V33H30V35.5V38.5H29V40H24V39H23V36Z"
+                    },
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "tag": "clipPath",
+                "attrs": {
+                  "id": "body-clip"
+                },
+                "children": [
+                  {
+                    "tag": "path",
+                    "attrs": {
+                      "d": "M33 15V14H31V13H24.5H18V16H15V17H14V20.5H15V23.5H16V24.5H17V25.5H18V26.5H20.5V27.5H21.5V36.5H39V23H38V20H37V18H36V17H35V16H34V15H33Z"
+                    },
+                    "children": []
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "tag": "g",
+            "attrs": {
+              "id": "cat-content"
+            },
+            "children": [
+              {
+                "tag": "g",
+                "attrs": {
+                  "id": "tail",
+                  "data-patch-frame": "33 14 1 1"
+                },
+                "children": []
+              },
+              {
+                "tag": "g",
+                "attrs": {
+                  "id": "body",
+                  "data-patch-frame": "14 13 1.136 1.6"
+                },
+                "children": [
+                  {
+                    "tag": "path",
+                    "attrs": {
+                      "d": "M33 15V14H31V13H24.5H18V16H15V17H14V20.5H15V23.5H16V24.5H17V25.5H18V26.5H20.5V27.5H21.5V36.5H39V23H38V20H37V18H36V17H35V16H34V15H33Z",
+                      "fill": "var(--cat-color)"
+                    },
+                    "children": []
+                  },
+                  {
+                    "tag": "g",
+                    "attrs": {
+                      "class": "patches",
+                      "clip-path": "url(#body-clip)"
+                    },
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "tag": "path",
+                "attrs": {
+                  "d": "M24 33V32H25V31H38V32H39V35H38V38H37V40H36V42H21V41H20V39H21V37H22V35H23V33H24Z",
+                  "fill": "#999797"
+                },
+                "children": []
+              },
+              {
+                "tag": "path",
+                "attrs": {
+                  "d": "M20 41H21V42H36V44H35H22V43H21V42H20V41Z",
+                  "fill": "#605E5E"
+                },
+                "children": []
+              },
+              {
+                "tag": "path",
+                "attrs": {
+                  "d": "M36 44H35V42H36V40H37V38H38V35H39V33H40V35.5H39V38.5H38V41H37V43H36V44Z",
+                  "fill": "#222222"
+                },
+                "children": []
+              },
+              {
+                "tag": "rect",
+                "attrs": {
+                  "x": "22",
+                  "y": "41",
+                  "width": "13",
+                  "height": "1",
+                  "fill": "#D7D6D6"
+                },
+                "children": []
+              },
+              {
+                "tag": "rect",
+                "attrs": {
+                  "x": "20",
+                  "y": "39",
+                  "width": "1",
+                  "height": "1",
+                  "fill": "#D9D9D9"
+                },
+                "children": []
+              },
+              {
+                "tag": "rect",
+                "attrs": {
+                  "x": "21",
+                  "y": "40",
+                  "width": "1",
+                  "height": "1",
+                  "fill": "#D9D9D9"
+                },
+                "children": []
+              },
+              {
+                "tag": "rect",
+                "attrs": {
+                  "x": "35",
+                  "y": "40",
+                  "width": "1",
+                  "height": "1",
+                  "fill": "#D9D9D9"
+                },
+                "children": []
+              },
+              {
+                "tag": "rect",
+                "attrs": {
+                  "x": "36",
+                  "y": "39",
+                  "width": "1",
+                  "height": "1",
+                  "fill": "#D9D9D9"
+                },
+                "children": []
+              },
+              {
+                "tag": "g",
+                "attrs": {
+                  "id": "leg-fr",
+                  "data-patch-frame": "23 22 1.125 1.636"
+                },
+                "children": [
+                  {
+                    "tag": "path",
+                    "attrs": {
+                      "d": "M23 36H24V27.5H25V23H26V22H30V23H31V24H32V31H31V33H30V35.5V38.5H29V40H24V39H23V36Z",
+                      "fill": "var(--cat-color)"
+                    },
+                    "children": []
+                  },
+                  {
+                    "tag": "g",
+                    "attrs": {
+                      "class": "patches",
+                      "clip-path": "url(#leg-fr-clip)"
+                    },
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "tag": "path",
+                "attrs": {
+                  "d": "M4 29V28H5V27H18V28H19V31H18V34H17V36H16V38H1V37H0V35H1V33H2V31H3V29H4Z",
+                  "fill": "#999797"
+                },
+                "children": []
+              },
+              {
+                "tag": "path",
+                "attrs": {
+                  "d": "M0 37H1V38H16V44H15H2V43H1V42H0V37Z",
+                  "fill": "#605E5E"
+                },
+                "children": []
+              },
+              {
+                "tag": "path",
+                "attrs": {
+                  "d": "M16 44H15V42H16V36H17V34H18V31H19V29H20V35.5H19V38.5H18V41H17V43H16V44Z",
+                  "fill": "#222222"
+                },
+                "children": []
+              },
+              {
+                "tag": "rect",
+                "attrs": {
+                  "x": "2",
+                  "y": "37",
+                  "width": "13",
+                  "height": "1",
+                  "fill": "#D7D6D6"
+                },
+                "children": []
+              },
+              {
+                "tag": "rect",
+                "attrs": {
+                  "y": "35",
+                  "width": "1",
+                  "height": "1",
+                  "fill": "#D9D9D9"
+                },
+                "children": []
+              },
+              {
+                "tag": "rect",
+                "attrs": {
+                  "x": "1",
+                  "y": "36",
+                  "width": "1",
+                  "height": "1",
+                  "fill": "#D9D9D9"
+                },
+                "children": []
+              },
+              {
+                "tag": "rect",
+                "attrs": {
+                  "x": "15",
+                  "y": "36",
+                  "width": "1",
+                  "height": "1",
+                  "fill": "#D9D9D9"
+                },
+                "children": []
+              },
+              {
+                "tag": "rect",
+                "attrs": {
+                  "x": "16",
+                  "y": "35",
+                  "width": "1",
+                  "height": "1",
+                  "fill": "#D9D9D9"
+                },
+                "children": []
+              },
+              {
+                "tag": "g",
+                "attrs": {
+                  "id": "leg-fl",
+                  "data-patch-frame": "10 14 1.125 1.727"
+                },
+                "children": [
+                  {
+                    "tag": "path",
+                    "attrs": {
+                      "d": "M12 25V16H13V15H14V14H17V15H18V16H19V27.5H18V31H17V32H16V33H10V29H11V25H12Z",
+                      "fill": "var(--cat-color)"
+                    },
+                    "children": []
+                  },
+                  {
+                    "tag": "g",
+                    "attrs": {
+                      "class": "patches",
+                      "clip-path": "url(#leg-fl-clip)"
+                    },
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "tag": "g",
+                "attrs": {
+                  "id": "head",
+                  "data-patch-frame": "9 7 1 1"
+                },
+                "children": [
+                  {
+                    "tag": "path",
+                    "attrs": {
+                      "d": "M13 9H11V11H10V13H9V18H10V22H12V23H13V24H15V25H25V24H27V23H28V22H29V21H30V18H31V14H30V11H29V10H28V9H26V8H24V7H16V8H13V9Z",
+                      "fill": "var(--cat-color)"
+                    },
+                    "children": []
+                  },
+                  {
+                    "tag": "g",
+                    "attrs": {
+                      "class": "patches",
+                      "clip-path": "url(#head-clip)"
+                    },
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "tag": "g",
+                "attrs": {
+                  "id": "whiskers",
+                  "data-heat-overlay": "true"
+                },
+                "children": [
+                  {
+                    "tag": "rect",
+                    "attrs": {
+                      "width": "6",
+                      "height": "1",
+                      "transform": "translate(6 17)",
+                      "fill": "var(--cat-color)"
+                    },
+                    "children": []
+                  },
+                  {
+                    "tag": "rect",
+                    "attrs": {
+                      "width": "6",
+                      "height": "1",
+                      "transform": "translate(7 19)",
+                      "fill": "var(--cat-color)"
+                    },
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "tag": "g",
+                "attrs": {
+                  "id": "ear-left",
+                  "data-ear-position": "11 3"
+                },
+                "children": []
+              },
+              {
+                "tag": "g",
+                "attrs": {
+                  "id": "ear-right",
+                  "data-ear-position": "23 3"
+                },
+                "children": []
+              },
+              {
+                "tag": "g",
+                "attrs": {},
+                "children": [
+                  {
+                    "tag": "rect",
+                    "attrs": {
+                      "width": "1",
+                      "height": "3",
+                      "transform": "translate(20 15)",
+                      "fill": "var(--eye-bg-color, #FFFFFF)"
+                    },
+                    "children": []
+                  },
+                  {
+                    "tag": "rect",
+                    "attrs": {
+                      "width": "1",
+                      "height": "3",
+                      "transform": "translate(24 15)",
+                      "fill": "var(--eye-bg-color, #FFFFFF)"
+                    },
+                    "children": []
+                  },
+                  {
+                    "tag": "rect",
+                    "attrs": {
+                      "width": "3",
+                      "height": "5",
+                      "transform": "translate(21 14)",
+                      "fill": "var(--eye-bg-color, #FFFFFF)"
+                    },
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "tag": "rect",
+                "attrs": {
+                  "class": "pupil-right",
+                  "width": "3",
+                  "height": "3",
+                  "transform": "translate(21 15)",
+                  "fill": "var(--eye-color-right, var(--eye-color, var(--cat-color)))"
+                },
+                "children": []
+              },
+              {
+                "tag": "g",
+                "attrs": {},
+                "children": [
+                  {
+                    "tag": "rect",
+                    "attrs": {
+                      "width": "1",
+                      "height": "3",
+                      "transform": "translate(11 15)",
+                      "fill": "var(--eye-bg-color, #FFFFFF)"
+                    },
+                    "children": []
+                  },
+                  {
+                    "tag": "rect",
+                    "attrs": {
+                      "width": "1",
+                      "height": "3",
+                      "transform": "translate(15 15)",
+                      "fill": "var(--eye-bg-color, #FFFFFF)"
+                    },
+                    "children": []
+                  },
+                  {
+                    "tag": "rect",
+                    "attrs": {
+                      "width": "3",
+                      "height": "5",
+                      "transform": "translate(12 14)",
+                      "fill": "var(--eye-bg-color, #FFFFFF)"
+                    },
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "tag": "rect",
+                "attrs": {
+                  "class": "pupil-left",
+                  "width": "3",
+                  "height": "3",
+                  "transform": "translate(12 15)",
+                  "fill": "var(--eye-color-left, var(--eye-color, var(--cat-color)))"
+                },
+                "children": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "scroll-unroll",
+      "file": "scroll-unroll.svg",
+      "viewBox": "0 0 50 50",
+      "root": {
+        "tag": "svg",
+        "attrs": {
+          "width": "50",
+          "height": "50",
+          "viewBox": "0 0 50 50",
+          "fill": "none"
+        },
+        "children": [
+          {
+            "tag": "defs",
+            "attrs": {},
+            "children": [
+              {
+                "tag": "clipPath",
+                "attrs": {
+                  "id": "body-clip"
+                },
+                "children": [
+                  {
+                    "tag": "path",
+                    "attrs": {
+                      "d": "M23 36V26H24V25H26V24H27V22H35V23H36V24H38V26H39V30H40V34H41V40H40V41H34V42H28V41H23V40H22V36H23Z"
+                    },
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "tag": "clipPath",
+                "attrs": {
+                  "id": "head-clip"
+                },
+                "children": [
+                  {
+                    "tag": "path",
+                    "attrs": {
+                      "d": "M24 10H22V12H21V14H20V19H21V23H23V24H24V25H26V26H36V25H38V24H39V23H40V22H41V19H42V15H41V12H40V11H39V10H37V9H35V8H27V9H24V10Z"
+                    },
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "tag": "clipPath",
+                "attrs": {
+                  "id": "leg-rl-clip"
+                },
+                "children": [
+                  {
+                    "tag": "path",
+                    "attrs": {
+                      "d": "M22 42V38H30V42H29V44H28V46H24V44H23V42H22Z"
+                    },
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "tag": "clipPath",
+                "attrs": {
+                  "id": "leg-rr-clip"
+                },
+                "children": [
+                  {
+                    "tag": "path",
+                    "attrs": {
+                      "d": "M34 42V38H42V42H41V44H40V46H36V44H35V42H34Z"
+                    },
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "tag": "clipPath",
+                "attrs": {
+                  "id": "leg-fl-clip"
+                },
+                "children": [
+                  {
+                    "tag": "path",
+                    "attrs": {
+                      "d": "M28 36L28 26L29 26V25L32 25V26L33 26L33 38.5H32V42H31V43H30V44H26L26 40H27L27 36H28Z"
+                    },
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "tag": "clipPath",
+                "attrs": {
+                  "id": "leg-fr-clip"
+                },
+                "children": [
+                  {
+                    "tag": "path",
+                    "attrs": {
+                      "d": "M29 37L29 27L30 27V26L33 26V27L34 27L34 39.5H33V43H32V44H31V45H27L27 41H28L28 37H29Z"
+                    },
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "tag": "clipPath",
+                "attrs": {
+                  "id": "paper-strip-clip"
+                },
+                "children": [
+                  {
+                    "tag": "rect",
+                    "attrs": {
+                      "id": "paper-strip-mask",
+                      "x": "5",
+                      "y": "13",
+                      "width": "11",
+                      "height": "17"
+                    },
+                    "children": []
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "tag": "path",
+            "attrs": {
+              "d": "M13 13H3V14H2V15H1V22H2V23H3V24H4V25H13V24H14V22H15V21H16V17H15V15H14V14H13V13Z",
+              "fill": "#D9D9D9",
+              "stroke": "black"
+            },
+            "children": []
+          },
+          {
+            "tag": "path",
+            "attrs": {
+              "d": "M8 22H7V23H6V25",
+              "stroke": "black"
+            },
+            "children": []
+          },
+          {
+            "tag": "path",
+            "attrs": {
+              "id": "paper-strip",
+              "class": "paper-strip",
+              "d": "M13 13H5V15H6V16H7V17H8V45.5H16V17H15V15H14V14H13V13Z",
+              "fill": "#D9D9D9",
+              "stroke": "black",
+              "clip-path": "url(#paper-strip-clip)"
+            },
+            "children": []
+          },
+          {
+            "tag": "g",
+            "attrs": {
+              "id": "cat-content"
+            },
+            "children": [
+              {
+                "tag": "g",
+                "attrs": {
+                  "id": "tail",
+                  "class": "scroll-tail-sway",
+                  "data-patch-frame": "36 31 1 1"
+                },
+                "children": []
+              },
+              {
+                "tag": "g",
+                "attrs": {
+                  "id": "leg-fl",
+                  "data-patch-frame": "26 25 0.875 1.727"
+                },
+                "children": [
+                  {
+                    "tag": "g",
+                    "attrs": {
+                      "class": "paw-a"
+                    },
+                    "children": [
+                      {
+                        "tag": "animateTransform",
+                        "attrs": {},
+                        "children": []
+                      },
+                      {
+                        "tag": "path",
+                        "attrs": {
+                          "d": "M28 36L28 26L29 26V25L32 25V26L33 26L33 38.5H32V42H31V43H30V44H26L26 40H27L27 36H28Z",
+                          "fill": "var(--cat-color)"
+                        },
+                        "children": []
+                      },
+                      {
+                        "tag": "g",
+                        "attrs": {
+                          "class": "patches",
+                          "clip-path": "url(#leg-fl-clip)"
+                        },
+                        "children": []
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "tag": "g",
+                "attrs": {
+                  "id": "leg-rl",
+                  "data-patch-frame": "22 38 1 1"
+                },
+                "children": [
+                  {
+                    "tag": "path",
+                    "attrs": {
+                      "d": "M22 42V38H30V42H29V44H28V46H24V44H23V42H22Z",
+                      "fill": "var(--cat-color)"
+                    },
+                    "children": []
+                  },
+                  {
+                    "tag": "g",
+                    "attrs": {
+                      "class": "patches",
+                      "clip-path": "url(#leg-rl-clip)"
+                    },
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "tag": "g",
+                "attrs": {
+                  "id": "leg-rr",
+                  "data-patch-frame": "34 38 1 1"
+                },
+                "children": [
+                  {
+                    "tag": "path",
+                    "attrs": {
+                      "d": "M34 42V38H42V42H41V44H40V46H36V44H35V42H34Z",
+                      "fill": "var(--cat-color)"
+                    },
+                    "children": []
+                  },
+                  {
+                    "tag": "g",
+                    "attrs": {
+                      "class": "patches",
+                      "clip-path": "url(#leg-rr-clip)"
+                    },
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "tag": "g",
+                "attrs": {
+                  "id": "body",
+                  "data-patch-frame": "22 22 0.864 1.333"
+                },
+                "children": [
+                  {
+                    "tag": "path",
+                    "attrs": {
+                      "d": "M23 36V26H24V25H26V24H27V22H35V23H36V24H38V26H39V30H40V34H41V40H40V41H34V42H28V41H23V40H22V36H23Z",
+                      "fill": "var(--cat-color)"
+                    },
+                    "children": []
+                  },
+                  {
+                    "tag": "g",
+                    "attrs": {
+                      "class": "patches",
+                      "clip-path": "url(#body-clip)"
+                    },
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "tag": "g",
+                "attrs": {
+                  "id": "leg-fr",
+                  "data-patch-frame": "27 26 0.875 1.727"
+                },
+                "children": [
+                  {
+                    "tag": "g",
+                    "attrs": {
+                      "class": "paw-b"
+                    },
+                    "children": [
+                      {
+                        "tag": "animateTransform",
+                        "attrs": {},
+                        "children": []
+                      },
+                      {
+                        "tag": "path",
+                        "attrs": {
+                          "d": "M29 37L29 27L30 27V26L33 26V27L34 27L34 39.5H33V43H32V44H31V45H27L27 41H28L28 37H29Z",
+                          "fill": "var(--cat-color)"
+                        },
+                        "children": []
+                      },
+                      {
+                        "tag": "g",
+                        "attrs": {
+                          "class": "patches",
+                          "clip-path": "url(#leg-fr-clip)"
+                        },
+                        "children": []
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "tag": "g",
+                "attrs": {
+                  "id": "head",
+                  "data-patch-frame": "20 8 1 1"
+                },
+                "children": [
+                  {
+                    "tag": "path",
+                    "attrs": {
+                      "d": "M24 10H22V12H21V14H20V19H21V23H23V24H24V25H26V26H36V25H38V24H39V23H40V22H41V19H42V15H41V12H40V11H39V10H37V9H35V8H27V9H24V10Z",
+                      "fill": "var(--cat-color)"
+                    },
+                    "children": []
+                  },
+                  {
+                    "tag": "g",
+                    "attrs": {
+                      "class": "patches",
+                      "clip-path": "url(#head-clip)"
+                    },
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "tag": "g",
+                "attrs": {
+                  "id": "whiskers",
+                  "data-heat-overlay": "true"
+                },
+                "children": [
+                  {
+                    "tag": "rect",
+                    "attrs": {
+                      "width": "6",
+                      "height": "1",
+                      "transform": "translate(17 18)",
+                      "fill": "var(--cat-color)"
+                    },
+                    "children": []
+                  },
+                  {
+                    "tag": "rect",
+                    "attrs": {
+                      "width": "6",
+                      "height": "1",
+                      "transform": "translate(38 19)",
+                      "fill": "var(--cat-color)"
+                    },
+                    "children": []
+                  },
+                  {
+                    "tag": "rect",
+                    "attrs": {
+                      "width": "6",
+                      "height": "1",
+                      "transform": "translate(18 20)",
+                      "fill": "var(--cat-color)"
+                    },
+                    "children": []
+                  },
+                  {
+                    "tag": "rect",
+                    "attrs": {
+                      "width": "6",
+                      "height": "1",
+                      "transform": "translate(39 21)",
+                      "fill": "var(--cat-color)"
+                    },
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "tag": "g",
+                "attrs": {
+                  "id": "ear-left",
+                  "class": "scroll-ear-left",
+                  "data-ear-position": "22 5"
+                },
+                "children": []
+              },
+              {
+                "tag": "g",
+                "attrs": {
+                  "id": "ear-right",
+                  "class": "scroll-ear-right",
+                  "data-ear-position": "34 5"
+                },
+                "children": []
+              },
+              {
+                "tag": "rect",
+                "attrs": {
+                  "width": "1",
+                  "height": "3",
+                  "transform": "translate(31 16)",
+                  "fill": "var(--eye-bg-color, #FFFFFF)"
+                },
+                "children": []
+              },
+              {
+                "tag": "rect",
+                "attrs": {
+                  "width": "1",
+                  "height": "3",
+                  "transform": "translate(35 16)",
+                  "fill": "var(--eye-bg-color, #FFFFFF)"
+                },
+                "children": []
+              },
+              {
+                "tag": "rect",
+                "attrs": {
+                  "width": "3",
+                  "height": "5",
+                  "transform": "translate(32 15)",
+                  "fill": "var(--eye-bg-color, #FFFFFF)"
+                },
+                "children": []
+              },
+              {
+                "tag": "rect",
+                "attrs": {
+                  "class": "pupil-right",
+                  "width": "3",
+                  "height": "3",
+                  "transform": "translate(32 16)",
+                  "fill": "var(--eye-color-right, var(--eye-color, var(--cat-color)))"
+                },
+                "children": []
+              },
+              {
+                "tag": "rect",
+                "attrs": {
+                  "width": "1",
+                  "height": "3",
+                  "transform": "translate(22 16)",
+                  "fill": "var(--eye-bg-color, #FFFFFF)"
+                },
+                "children": []
+              },
+              {
+                "tag": "rect",
+                "attrs": {
+                  "width": "1",
+                  "height": "3",
+                  "transform": "translate(26 16)",
+                  "fill": "var(--eye-bg-color, #FFFFFF)"
+                },
+                "children": []
+              },
+              {
+                "tag": "rect",
+                "attrs": {
+                  "width": "3",
+                  "height": "5",
+                  "transform": "translate(23 15)",
+                  "fill": "var(--eye-bg-color, #FFFFFF)"
+                },
+                "children": []
+              },
+              {
+                "tag": "rect",
+                "attrs": {
+                  "class": "pupil-left",
+                  "width": "3",
+                  "height": "3",
+                  "transform": "translate(23 16)",
+                  "fill": "var(--eye-color-left, var(--eye-color, var(--cat-color)))"
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "tag": "path",
+            "attrs": {
+              "d": "M4 20V18H5V20H4Z",
+              "stroke": "black"
+            },
+            "children": []
+          },
+          {
+            "tag": "g",
+            "attrs": {
+              "class": "speed-a"
+            },
+            "children": [
+              {
+                "tag": "path",
+                "attrs": {
+                  "d": "M5 29V34.5",
+                  "stroke": "black"
+                },
+                "children": []
+              },
+              {
+                "tag": "path",
+                "attrs": {
+                  "d": "M18 34V38",
+                  "stroke": "black"
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "tag": "g",
+            "attrs": {
+              "class": "speed-b"
+            },
+            "children": [
+              {
+                "tag": "path",
+                "attrs": {
+                  "d": "M11.5 24V28",
+                  "stroke": "black"
+                },
+                "children": []
+              },
+              {
+                "tag": "path",
+                "attrs": {
+                  "d": "M14 38V42",
+                  "stroke": "black"
+                },
+                "children": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "stretch-end",
+      "file": "stretch-end.svg",
+      "viewBox": "0 0 40 145",
+      "root": {
+        "tag": "svg",
+        "attrs": {
+          "width": "40",
+          "height": "145",
+          "viewBox": "0 0 40 145",
+          "fill": "none"
+        },
+        "children": [
+          {
+            "tag": "defs",
+            "attrs": {},
+            "children": [
+              {
+                "tag": "clipPath",
+                "attrs": {
+                  "id": "head-clip"
+                },
+                "children": [
+                  {
+                    "tag": "path",
+                    "attrs": {
+                      "d": "M13 8H11V10H10V12H9V17H10V21H12V22H13V23H15V24H25V23H27V22H28V21H29V20H30V17H31V13H30V10H29V9H28V8H26V7H24V6H16V7H13V8Z"
+                    },
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "tag": "clipPath",
+                "attrs": {
+                  "id": "leg-fl-clip"
+                },
+                "children": [
+                  {
+                    "tag": "path",
+                    "attrs": {
+                      "d": "M11 34H13V39H12V42H11V45H9V40H10V36H11V34Z"
+                    },
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "tag": "clipPath",
+                "attrs": {
+                  "id": "leg-fr-clip"
+                },
+                "children": [
+                  {
+                    "tag": "path",
+                    "attrs": {
+                      "d": "M29 34H27V39H28V42H29V45H31V40H30V36H29V34Z"
+                    },
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "tag": "clipPath",
+                "attrs": {
+                  "id": "leg-rl-clip"
+                },
+                "children": [
+                  {
+                    "tag": "path",
+                    "attrs": {
+                      "d": "M10 138V134H18V138H17V140H16V142H12V140H11V138H10Z"
+                    },
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "tag": "clipPath",
+                "attrs": {
+                  "id": "leg-rr-clip"
+                },
+                "children": [
+                  {
+                    "tag": "path",
+                    "attrs": {
+                      "d": "M22 138V134H30V138H29V140H28V142H24V140H23V138H22Z"
+                    },
+                    "children": []
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "tag": "g",
+            "attrs": {
+              "id": "cat-content"
+            },
+            "children": [
+              {
+                "tag": "g",
+                "attrs": {
+                  "id": "tail",
+                  "data-patch-frame": "27 125 1 1",
+                  "data-tail-path-id": "true"
+                },
+                "children": []
+              },
+              {
+                "tag": "g",
+                "attrs": {
+                  "id": "head",
+                  "data-patch-frame": "9 6 1 1"
+                },
+                "children": [
+                  {
+                    "tag": "path",
+                    "attrs": {
+                      "d": "M13 8H11V10H10V12H9V17H10V21H12V22H13V23H15V24H25V23H27V22H28V21H29V20H30V17H31V13H30V10H29V9H28V8H26V7H24V6H16V7H13V8Z",
+                      "fill": "var(--cat-color)"
+                    },
+                    "children": []
+                  },
+                  {
+                    "tag": "g",
+                    "attrs": {
+                      "class": "patches",
+                      "clip-path": "url(#head-clip)"
+                    },
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "tag": "g",
+                "attrs": {
+                  "id": "whiskers",
+                  "data-heat-overlay": "true"
+                },
+                "children": [
+                  {
+                    "tag": "rect",
+                    "attrs": {
+                      "width": "5",
+                      "height": "1",
+                      "transform": "translate(6 14)",
+                      "fill": "var(--cat-color)"
+                    },
+                    "children": []
+                  },
+                  {
+                    "tag": "rect",
+                    "attrs": {
+                      "width": "5",
+                      "height": "1",
+                      "transform": "translate(29 14)",
+                      "fill": "var(--cat-color)"
+                    },
+                    "children": []
+                  },
+                  {
+                    "tag": "rect",
+                    "attrs": {
+                      "width": "6",
+                      "height": "1",
+                      "transform": "translate(5 17)",
+                      "fill": "var(--cat-color)"
+                    },
+                    "children": []
+                  },
+                  {
+                    "tag": "rect",
+                    "attrs": {
+                      "width": "6",
+                      "height": "1",
+                      "transform": "translate(29 17)",
+                      "fill": "var(--cat-color)"
+                    },
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "tag": "g",
+                "attrs": {
+                  "id": "ear-left",
+                  "data-ear-position": "11 2"
+                },
+                "children": []
+              },
+              {
+                "tag": "g",
+                "attrs": {
+                  "id": "ear-right",
+                  "data-ear-position": "23 2"
+                },
+                "children": []
+              },
+              {
+                "tag": "rect",
+                "attrs": {
+                  "x": "14",
+                  "y": "22",
+                  "width": "12",
+                  "height": "6",
+                  "fill": "var(--cat-color)"
+                },
+                "children": []
+              },
+              {
+                "tag": "rect",
+                "attrs": {
+                  "x": "13",
+                  "y": "27",
+                  "width": "14",
+                  "height": "6",
+                  "fill": "var(--cat-color)"
+                },
+                "children": []
+              },
+              {
+                "tag": "rect",
+                "attrs": {
+                  "x": "12",
+                  "y": "32",
+                  "width": "16",
+                  "height": "9",
+                  "fill": "var(--cat-color)"
+                },
+                "children": []
+              },
+              {
+                "tag": "rect",
+                "attrs": {
+                  "x": "13",
+                  "y": "40",
+                  "width": "14",
+                  "height": "9",
+                  "fill": "var(--cat-color)"
+                },
+                "children": []
+              },
+              {
+                "tag": "rect",
+                "attrs": {
+                  "x": "14",
+                  "y": "48",
+                  "width": "12",
+                  "height": "9",
+                  "fill": "var(--cat-color)"
+                },
+                "children": []
+              },
+              {
+                "tag": "rect",
+                "attrs": {
+                  "x": "14",
+                  "y": "56",
+                  "width": "12",
+                  "height": "9",
+                  "fill": "var(--cat-color)"
+                },
+                "children": []
+              },
+              {
+                "tag": "rect",
+                "attrs": {
+                  "x": "14",
+                  "y": "64",
+                  "width": "12",
+                  "height": "9",
+                  "fill": "var(--cat-color)"
+                },
+                "children": []
+              },
+              {
+                "tag": "rect",
+                "attrs": {
+                  "x": "14",
+                  "y": "72",
+                  "width": "12",
+                  "height": "9",
+                  "fill": "var(--cat-color)"
+                },
+                "children": []
+              },
+              {
+                "tag": "rect",
+                "attrs": {
+                  "x": "14",
+                  "y": "80",
+                  "width": "12",
+                  "height": "9",
+                  "fill": "var(--cat-color)"
+                },
+                "children": []
+              },
+              {
+                "tag": "rect",
+                "attrs": {
+                  "x": "13",
+                  "y": "88",
+                  "width": "14",
+                  "height": "9",
+                  "fill": "var(--cat-color)"
+                },
+                "children": []
+              },
+              {
+                "tag": "rect",
+                "attrs": {
+                  "x": "13",
+                  "y": "96",
+                  "width": "14",
+                  "height": "9",
+                  "fill": "var(--cat-color)"
+                },
+                "children": []
+              },
+              {
+                "tag": "rect",
+                "attrs": {
+                  "x": "12",
+                  "y": "104",
+                  "width": "16",
+                  "height": "9",
+                  "fill": "var(--cat-color)"
+                },
+                "children": []
+              },
+              {
+                "tag": "rect",
+                "attrs": {
+                  "x": "11",
+                  "y": "112",
+                  "width": "18",
+                  "height": "9",
+                  "fill": "var(--cat-color)"
+                },
+                "children": []
+              },
+              {
+                "tag": "rect",
+                "attrs": {
+                  "x": "10",
+                  "y": "120",
+                  "width": "20",
+                  "height": "9",
+                  "fill": "var(--cat-color)"
+                },
+                "children": []
+              },
+              {
+                "tag": "rect",
+                "attrs": {
+                  "x": "10",
+                  "y": "128",
+                  "width": "20",
+                  "height": "9",
+                  "fill": "var(--cat-color)"
+                },
+                "children": []
+              },
+              {
+                "tag": "g",
+                "attrs": {
+                  "id": "leg-fl",
+                  "data-patch-frame": "9 34 0.5 1",
+                  "data-stretch-y-delta": "-8",
+                  "data-stretch-cy": "39.5"
+                },
+                "children": [
+                  {
+                    "tag": "path",
+                    "attrs": {
+                      "d": "M11 34H13V39H12V42H11V45H9V40H10V36H11V34Z",
+                      "fill": "var(--cat-color)"
+                    },
+                    "children": []
+                  },
+                  {
+                    "tag": "g",
+                    "attrs": {
+                      "class": "patches",
+                      "clip-path": "url(#leg-fl-clip)"
+                    },
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "tag": "g",
+                "attrs": {
+                  "id": "leg-fr",
+                  "data-patch-frame": "27 34 0.5 1",
+                  "data-stretch-y-delta": "-8",
+                  "data-stretch-cy": "39.5"
+                },
+                "children": [
+                  {
+                    "tag": "path",
+                    "attrs": {
+                      "d": "M29 34H27V39H28V42H29V45H31V40H30V36H29V34Z",
+                      "fill": "var(--cat-color)"
+                    },
+                    "children": []
+                  },
+                  {
+                    "tag": "g",
+                    "attrs": {
+                      "class": "patches",
+                      "clip-path": "url(#leg-fr-clip)"
+                    },
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "tag": "g",
+                "attrs": {
+                  "id": "leg-rl",
+                  "data-patch-frame": "10 134 1 1",
+                  "data-stretch-y-delta": "-83",
+                  "data-stretch-cy": "138"
+                },
+                "children": [
+                  {
+                    "tag": "path",
+                    "attrs": {
+                      "d": "M10 138V134H18V138H17V140H16V142H12V140H11V138H10Z",
+                      "fill": "var(--cat-color)"
+                    },
+                    "children": []
+                  },
+                  {
+                    "tag": "g",
+                    "attrs": {
+                      "class": "patches",
+                      "clip-path": "url(#leg-rl-clip)"
+                    },
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "tag": "g",
+                "attrs": {
+                  "id": "leg-rr",
+                  "data-patch-frame": "22 134 1 1",
+                  "data-stretch-y-delta": "-83",
+                  "data-stretch-cy": "138"
+                },
+                "children": [
+                  {
+                    "tag": "path",
+                    "attrs": {
+                      "d": "M22 138V134H30V138H29V140H28V142H24V140H23V138H22Z",
+                      "fill": "var(--cat-color)"
+                    },
+                    "children": []
+                  },
+                  {
+                    "tag": "g",
+                    "attrs": {
+                      "class": "patches",
+                      "clip-path": "url(#leg-rr-clip)"
+                    },
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "tag": "g",
+                "attrs": {
+                  "id": "body",
+                  "data-patch-frame": "10 22 1 9"
+                },
+                "children": []
+              },
+              {
+                "tag": "g",
+                "attrs": {},
+                "children": [
+                  {
+                    "tag": "rect",
+                    "attrs": {
+                      "width": "1",
+                      "height": "3",
+                      "transform": "translate(22 13)",
+                      "fill": "var(--eye-bg-color, #FFFFFF)"
+                    },
+                    "children": []
+                  },
+                  {
+                    "tag": "rect",
+                    "attrs": {
+                      "width": "1",
+                      "height": "3",
+                      "transform": "translate(26 13)",
+                      "fill": "var(--eye-bg-color, #FFFFFF)"
+                    },
+                    "children": []
+                  },
+                  {
+                    "tag": "rect",
+                    "attrs": {
+                      "width": "3",
+                      "height": "5",
+                      "transform": "translate(23 12)",
+                      "fill": "var(--eye-bg-color, #FFFFFF)"
+                    },
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "tag": "rect",
+                "attrs": {
+                  "class": "pupil-right",
+                  "width": "3",
+                  "height": "3",
+                  "transform": "translate(23 13)",
+                  "fill": "var(--eye-color-right, var(--eye-color, var(--cat-color)))"
+                },
+                "children": []
+              },
+              {
+                "tag": "g",
+                "attrs": {},
+                "children": [
+                  {
+                    "tag": "rect",
+                    "attrs": {
+                      "width": "1",
+                      "height": "3",
+                      "transform": "translate(13 13)",
+                      "fill": "var(--eye-bg-color, #FFFFFF)"
+                    },
+                    "children": []
+                  },
+                  {
+                    "tag": "rect",
+                    "attrs": {
+                      "width": "1",
+                      "height": "3",
+                      "transform": "translate(17 13)",
+                      "fill": "var(--eye-bg-color, #FFFFFF)"
+                    },
+                    "children": []
+                  },
+                  {
+                    "tag": "rect",
+                    "attrs": {
+                      "width": "3",
+                      "height": "5",
+                      "transform": "translate(14 12)",
+                      "fill": "var(--eye-bg-color, #FFFFFF)"
+                    },
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "tag": "rect",
+                "attrs": {
+                  "class": "pupil-left",
+                  "width": "3",
+                  "height": "3",
+                  "transform": "translate(14 13)",
+                  "fill": "var(--eye-color-left, var(--eye-color, var(--cat-color)))"
+                },
+                "children": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "stretch-pose-default",
+      "file": "stretch-pose-default.svg",
+      "viewBox": "-10 -2 72 56",
+      "root": {
+        "tag": "svg",
+        "attrs": {
+          "width": "72",
+          "height": "56",
+          "viewBox": "-10 -2 72 56",
+          "fill": "none"
+        },
+        "children": [
+          {
+            "tag": "defs",
+            "attrs": {},
+            "children": [
+              {
+                "tag": "clipPath",
+                "attrs": {
+                  "id": "head-clip"
+                },
+                "children": [
+                  {
+                    "tag": "path",
+                    "attrs": {
+                      "d": "M8 17H6V19H5V21H4V26H5V30H7V31H8V32H10V33H20V32H22V31H23V30H24V29H25V26H26V22H25V19H24V18H23V17H21V16H19V15H11V16H8V17Z"
+                    },
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "tag": "clipPath",
+                "attrs": {
+                  "id": "body-clip"
+                },
+                "children": [
+                  {
+                    "tag": "path",
+                    "attrs": {
+                      "d": "M14 30V25.5H15V23.5H16H17V22H20V21H22V20H24V19H26V18H27H28V17H29V16H30H31V15H33V14H38V15H40V16H41H42V18H43V20H44V26H43V28H42V29H41V31H40V32H38V33H36H35H34H33V34H32V35H30V34H26H23H22H18H17H15V30H14Z"
+                    },
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "tag": "clipPath",
+                "attrs": {
+                  "id": "leg-rl-clip"
+                },
+                "children": [
+                  {
+                    "tag": "path",
+                    "attrs": {
+                      "d": "M34 37V27V26H33V25H28V26H27V27H26V31H27V33H28V37H27V39H26V41H27V42H31V41H32V40H33V37H34Z"
+                    },
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "tag": "clipPath",
+                "attrs": {
+                  "id": "leg-rr-clip"
+                },
+                "children": [
+                  {
+                    "tag": "path",
+                    "attrs": {
+                      "d": "M42 37V27V26H41V25H36V26H35V27H34V31H35V33H36V37H35V39H34V41H35V42H39V41H40V40H41V37H42Z"
+                    },
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "tag": "clipPath",
+                "attrs": {
+                  "id": "leg-fl-clip"
+                },
+                "children": [
+                  {
+                    "tag": "path",
+                    "attrs": {
+                      "d": "M9 37.1724L9 22H16L16 37.1724H9Z"
+                    },
+                    "children": []
+                  },
+                  {
+                    "tag": "path",
+                    "attrs": {
+                      "d": "M9 36V34H16V38.5H15V42H14V43H13V44H7L7 40H8V36H9Z"
+                    },
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "tag": "clipPath",
+                "attrs": {
+                  "id": "leg-fr-clip"
+                },
+                "children": [
+                  {
+                    "tag": "path",
+                    "attrs": {
+                      "d": "M18 37.1724V22H25L25 37.1724H18Z"
+                    },
+                    "children": []
+                  },
+                  {
+                    "tag": "path",
+                    "attrs": {
+                      "d": "M18 36V34H25V38.5H24V42H23V43H22V44H16V40H17V36H18Z"
+                    },
+                    "children": []
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "tag": "g",
+            "attrs": {
+              "id": "cat-content"
+            },
+            "children": [
+              {
+                "tag": "g",
+                "attrs": {
+                  "id": "tail",
+                  "data-patch-frame": "39 13 1 1"
+                },
+                "children": []
+              },
+              {
+                "tag": "g",
+                "attrs": {
+                  "id": "leg-rl",
+                  "data-patch-frame": "26 25 1 2.125"
+                },
+                "children": [
+                  {
+                    "tag": "path",
+                    "attrs": {
+                      "d": "M34 37V27V26H33V25H28V26H27V27H26V31H27V33H28V37H27V39H26V41H27V42H31V41H32V40H33V37H34Z",
+                      "fill": "var(--cat-color)"
+                    },
+                    "children": []
+                  },
+                  {
+                    "tag": "g",
+                    "attrs": {
+                      "class": "patches",
+                      "clip-path": "url(#leg-rl-clip)"
+                    },
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "tag": "g",
+                "attrs": {
+                  "id": "body",
+                  "data-patch-frame": "14 14 1.364 1.615"
+                },
+                "children": [
+                  {
+                    "tag": "path",
+                    "attrs": {
+                      "d": "M14 30V25.5H15V23.5H16H17V22H20V21H22V20H24V19H26V18H27H28V17H29V16H30H31V15H33V14H38V15H40V16H41H42V18H43V20H44V26H43V28H42V29H41V31H40V32H38V33H36H35H34H33V34H32V35H30V34H26H23H22H18H17H15V30H14Z",
+                      "fill": "var(--cat-color)"
+                    },
+                    "children": []
+                  },
+                  {
+                    "tag": "g",
+                    "attrs": {
+                      "class": "patches",
+                      "clip-path": "url(#body-clip)"
+                    },
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "tag": "g",
+                "attrs": {
+                  "id": "leg-rr",
+                  "data-patch-frame": "34 25 1 2.125"
+                },
+                "children": [
+                  {
+                    "tag": "path",
+                    "attrs": {
+                      "d": "M42 37V27V26H41V25H36V26H35V27H34V31H35V33H36V37H35V39H34V41H35V42H39V41H40V40H41V37H42Z",
+                      "fill": "var(--cat-color)"
+                    },
+                    "children": []
+                  },
+                  {
+                    "tag": "g",
+                    "attrs": {
+                      "class": "patches",
+                      "clip-path": "url(#leg-rr-clip)"
+                    },
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "tag": "g",
+                "attrs": {
+                  "id": "leg-fl",
+                  "data-patch-frame": "7 22 1.125 2"
+                },
+                "children": [
+                  {
+                    "tag": "path",
+                    "attrs": {
+                      "d": "M9 37.1724L9 22H16L16 37.1724H9Z",
+                      "fill": "var(--cat-color)"
+                    },
+                    "children": []
+                  },
+                  {
+                    "tag": "path",
+                    "attrs": {
+                      "d": "M9 36V34H16V38.5H15V42H14V43H13V44H7L7 40H8V36H9Z",
+                      "fill": "var(--cat-color)"
+                    },
+                    "children": []
+                  },
+                  {
+                    "tag": "g",
+                    "attrs": {
+                      "class": "patches",
+                      "clip-path": "url(#leg-fl-clip)"
+                    },
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "tag": "g",
+                "attrs": {
+                  "id": "leg-fr",
+                  "data-patch-frame": "16 22 1.125 2"
+                },
+                "children": [
+                  {
+                    "tag": "path",
+                    "attrs": {
+                      "d": "M18 37.1724V22H25L25 37.1724H18Z",
+                      "fill": "var(--cat-color)"
+                    },
+                    "children": []
+                  },
+                  {
+                    "tag": "path",
+                    "attrs": {
+                      "d": "M18 36V34H25V38.5H24V42H23V43H22V44H16V40H17V36H18Z",
+                      "fill": "var(--cat-color)"
+                    },
+                    "children": []
+                  },
+                  {
+                    "tag": "g",
+                    "attrs": {
+                      "class": "patches",
+                      "clip-path": "url(#leg-fr-clip)"
+                    },
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "tag": "g",
+                "attrs": {
+                  "id": "head-group"
+                },
+                "children": [
+                  {
+                    "tag": "g",
+                    "attrs": {
+                      "id": "head",
+                      "data-patch-frame": "4 15 1 1"
+                    },
+                    "children": [
+                      {
+                        "tag": "path",
+                        "attrs": {
+                          "d": "M8 17H6V19H5V21H4V26H5V30H7V31H8V32H10V33H20V32H22V31H23V30H24V29H25V26H26V22H25V19H24V18H23V17H21V16H19V15H11V16H8V17Z",
+                          "fill": "var(--cat-color)"
+                        },
+                        "children": []
+                      },
+                      {
+                        "tag": "g",
+                        "attrs": {
+                          "class": "patches",
+                          "clip-path": "url(#head-clip)"
+                        },
+                        "children": []
+                      }
+                    ]
+                  },
+                  {
+                    "tag": "g",
+                    "attrs": {
+                      "id": "whiskers",
+                      "data-heat-overlay": "true"
+                    },
+                    "children": [
+                      {
+                        "tag": "rect",
+                        "attrs": {
+                          "width": "6",
+                          "height": "1",
+                          "transform": "translate(0 25)",
+                          "fill": "var(--cat-color)"
+                        },
+                        "children": []
+                      },
+                      {
+                        "tag": "rect",
+                        "attrs": {
+                          "width": "6",
+                          "height": "1",
+                          "transform": "translate(1 28)",
+                          "fill": "var(--cat-color)"
+                        },
+                        "children": []
+                      }
+                    ]
+                  },
+                  {
+                    "tag": "g",
+                    "attrs": {
+                      "id": "ear-left",
+                      "data-ear-position": "6 11"
+                    },
+                    "children": []
+                  },
+                  {
+                    "tag": "g",
+                    "attrs": {
+                      "id": "ear-right",
+                      "data-ear-position": "18 11"
+                    },
+                    "children": []
+                  },
+                  {
+                    "tag": "g",
+                    "attrs": {
+                      "id": "eyes-open"
+                    },
+                    "children": [
+                      {
+                        "tag": "g",
+                        "attrs": {},
+                        "children": [
+                          {
+                            "tag": "rect",
+                            "attrs": {
+                              "width": "1",
+                              "height": "3",
+                              "transform": "translate(15 23)",
+                              "fill": "var(--eye-bg-color, #FFFFFF)"
+                            },
+                            "children": []
+                          },
+                          {
+                            "tag": "rect",
+                            "attrs": {
+                              "width": "1",
+                              "height": "3",
+                              "transform": "translate(19 23)",
+                              "fill": "var(--eye-bg-color, #FFFFFF)"
+                            },
+                            "children": []
+                          },
+                          {
+                            "tag": "rect",
+                            "attrs": {
+                              "width": "3",
+                              "height": "5",
+                              "transform": "translate(16 22)",
+                              "fill": "var(--eye-bg-color, #FFFFFF)"
+                            },
+                            "children": []
+                          }
+                        ]
+                      },
+                      {
+                        "tag": "g",
+                        "attrs": {
+                          "class": "hunting-pupil-track"
+                        },
+                        "children": [
+                          {
+                            "tag": "rect",
+                            "attrs": {
+                              "class": "pupil-right",
+                              "width": "3",
+                              "height": "3",
+                              "transform": "translate(16 23)",
+                              "fill": "var(--eye-color-right, var(--eye-color, var(--cat-color)))"
+                            },
+                            "children": []
+                          }
+                        ]
+                      },
+                      {
+                        "tag": "g",
+                        "attrs": {},
+                        "children": [
+                          {
+                            "tag": "rect",
+                            "attrs": {
+                              "width": "1",
+                              "height": "3",
+                              "transform": "translate(6 23)",
+                              "fill": "var(--eye-bg-color, #FFFFFF)"
+                            },
+                            "children": []
+                          },
+                          {
+                            "tag": "rect",
+                            "attrs": {
+                              "width": "1",
+                              "height": "3",
+                              "transform": "translate(10 23)",
+                              "fill": "var(--eye-bg-color, #FFFFFF)"
+                            },
+                            "children": []
+                          },
+                          {
+                            "tag": "rect",
+                            "attrs": {
+                              "width": "3",
+                              "height": "5",
+                              "transform": "translate(7 22)",
+                              "fill": "var(--eye-bg-color, #FFFFFF)"
+                            },
+                            "children": []
+                          }
+                        ]
+                      },
+                      {
+                        "tag": "g",
+                        "attrs": {
+                          "class": "hunting-pupil-track"
+                        },
+                        "children": [
+                          {
+                            "tag": "rect",
+                            "attrs": {
+                              "class": "pupil-left",
+                              "width": "3",
+                              "height": "3",
+                              "transform": "translate(7 23)",
+                              "fill": "var(--eye-color-left, var(--eye-color, var(--cat-color)))"
+                            },
+                            "children": []
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "tag": "g",
+                    "attrs": {
+                      "id": "eyes-closed"
+                    },
+                    "children": [
+                      {
+                        "tag": "path",
+                        "attrs": {
+                          "d": "M6 22 L10 24 L6 26",
+                          "stroke": "var(--cat-outline, #FFFFFF)",
+                          "stroke-width": "1",
+                          "fill": "none",
+                          "stroke-linecap": "round",
+                          "stroke-linejoin": "round"
+                        },
+                        "children": []
+                      },
+                      {
+                        "tag": "path",
+                        "attrs": {
+                          "d": "M19 22 L15 24 L19 26",
+                          "stroke": "var(--cat-outline, #FFFFFF)",
+                          "stroke-width": "1",
+                          "fill": "none",
+                          "stroke-linecap": "round",
+                          "stroke-linejoin": "round"
+                        },
+                        "children": []
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "stretch-start",
+      "file": "stretch-start.svg",
+      "viewBox": "0 0 40 145",
+      "root": {
+        "tag": "svg",
+        "attrs": {
+          "width": "40",
+          "height": "145",
+          "viewBox": "0 0 40 145",
+          "fill": "none"
+        },
+        "children": [
+          {
+            "tag": "path",
+            "attrs": {
+              "id": "leg-fl-start",
+              "d": "M11 26H13V31H12V34H11V37H9V32H10V28H11V26Z",
+              "fill": "var(--cat-color)"
+            },
+            "children": []
+          },
+          {
+            "tag": "path",
+            "attrs": {
+              "d": "M13 8H11V10H10V12H9V17H10V21H12V22H13V23H15V24H25V23H27V22H28V21H29V20H30V17H31V13H30V10H29V9H28V8H26V7H24V6H16V7H13V8Z",
+              "fill": "var(--cat-color)"
+            },
+            "children": []
+          },
+          {
+            "tag": "path",
+            "attrs": {
+              "id": "tail-path",
+              "d": "M27 51V50H33V49H35V48H36V47H35V44H36V43H38V44H39V45H40V50H39V51H38V52H36V53H31V52H28V51H27Z",
+              "fill": "var(--cat-color)"
+            },
+            "children": []
+          },
+          {
+            "tag": "g",
+            "attrs": {
+              "id": "whiskers",
+              "data-heat-overlay": "true"
+            },
+            "children": [
+              {
+                "tag": "rect",
+                "attrs": {
+                  "width": "5",
+                  "height": "1",
+                  "transform": "translate(6 14)",
+                  "fill": "var(--cat-color)"
+                },
+                "children": []
+              },
+              {
+                "tag": "rect",
+                "attrs": {
+                  "width": "5",
+                  "height": "1",
+                  "transform": "translate(29 14)",
+                  "fill": "var(--cat-color)"
+                },
+                "children": []
+              },
+              {
+                "tag": "rect",
+                "attrs": {
+                  "width": "6",
+                  "height": "1",
+                  "transform": "translate(5 17)",
+                  "fill": "var(--cat-color)"
+                },
+                "children": []
+              },
+              {
+                "tag": "rect",
+                "attrs": {
+                  "width": "6",
+                  "height": "1",
+                  "transform": "translate(29 17)",
+                  "fill": "var(--cat-color)"
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "tag": "path",
+            "attrs": {
+              "d": "M11 9V6H12V4H13V3H14V2H15V4H16V5H17V9H16V10H12V9H11Z",
+              "fill": "var(--cat-color)"
+            },
+            "children": []
+          },
+          {
+            "tag": "path",
+            "attrs": {
+              "d": "M24 5H23V9H24V10H27V9H28V4H27V3H26V2H25V3H24V5Z",
+              "fill": "var(--cat-color)"
+            },
+            "children": []
+          },
+          {
+            "tag": "rect",
+            "attrs": {
+              "x": "13",
+              "y": "22",
+              "width": "14",
+              "height": "3",
+              "fill": "var(--cat-color)"
+            },
+            "children": []
+          },
+          {
+            "tag": "rect",
+            "attrs": {
+              "x": "12",
+              "y": "24",
+              "width": "16",
+              "height": "3",
+              "fill": "var(--cat-color)"
+            },
+            "children": []
+          },
+          {
+            "tag": "rect",
+            "attrs": {
+              "x": "12",
+              "y": "26",
+              "width": "16",
+              "height": "3",
+              "fill": "var(--cat-color)"
+            },
+            "children": []
+          },
+          {
+            "tag": "rect",
+            "attrs": {
+              "x": "12",
+              "y": "28",
+              "width": "16",
+              "height": "3",
+              "fill": "var(--cat-color)"
+            },
+            "children": []
+          },
+          {
+            "tag": "rect",
+            "attrs": {
+              "x": "12",
+              "y": "30",
+              "width": "16",
+              "height": "3",
+              "fill": "var(--cat-color)"
+            },
+            "children": []
+          },
+          {
+            "tag": "rect",
+            "attrs": {
+              "x": "12",
+              "y": "32",
+              "width": "16",
+              "height": "3",
+              "fill": "var(--cat-color)"
+            },
+            "children": []
+          },
+          {
+            "tag": "rect",
+            "attrs": {
+              "x": "11",
+              "y": "34",
+              "width": "18",
+              "height": "3",
+              "fill": "var(--cat-color)"
+            },
+            "children": []
+          },
+          {
+            "tag": "rect",
+            "attrs": {
+              "x": "11",
+              "y": "36",
+              "width": "18",
+              "height": "3",
+              "fill": "var(--cat-color)"
+            },
+            "children": []
+          },
+          {
+            "tag": "rect",
+            "attrs": {
+              "x": "11",
+              "y": "38",
+              "width": "18",
+              "height": "3",
+              "fill": "var(--cat-color)"
+            },
+            "children": []
+          },
+          {
+            "tag": "rect",
+            "attrs": {
+              "x": "11",
+              "y": "40",
+              "width": "18",
+              "height": "3",
+              "fill": "var(--cat-color)"
+            },
+            "children": []
+          },
+          {
+            "tag": "rect",
+            "attrs": {
+              "x": "11",
+              "y": "42",
+              "width": "18",
+              "height": "3",
+              "fill": "var(--cat-color)"
+            },
+            "children": []
+          },
+          {
+            "tag": "rect",
+            "attrs": {
+              "x": "11",
+              "y": "44",
+              "width": "18",
+              "height": "3",
+              "fill": "var(--cat-color)"
+            },
+            "children": []
+          },
+          {
+            "tag": "rect",
+            "attrs": {
+              "x": "11",
+              "y": "46",
+              "width": "18",
+              "height": "3",
+              "fill": "var(--cat-color)"
+            },
+            "children": []
+          },
+          {
+            "tag": "rect",
+            "attrs": {
+              "x": "10",
+              "y": "48",
+              "width": "20",
+              "height": "3",
+              "fill": "var(--cat-color)"
+            },
+            "children": []
+          },
+          {
+            "tag": "rect",
+            "attrs": {
+              "x": "10",
+              "y": "50",
+              "width": "20",
+              "height": "3",
+              "fill": "var(--cat-color)"
+            },
+            "children": []
+          },
+          {
+            "tag": "rect",
+            "attrs": {
+              "width": "1",
+              "height": "3",
+              "transform": "translate(22 13)",
+              "fill": "var(--eye-bg-color, #FFFFFF)"
+            },
+            "children": []
+          },
+          {
+            "tag": "rect",
+            "attrs": {
+              "width": "1",
+              "height": "3",
+              "transform": "translate(26 13)",
+              "fill": "var(--eye-bg-color, #FFFFFF)"
+            },
+            "children": []
+          },
+          {
+            "tag": "rect",
+            "attrs": {
+              "width": "3",
+              "height": "5",
+              "transform": "translate(23 12)",
+              "fill": "var(--eye-bg-color, #FFFFFF)"
+            },
+            "children": []
+          },
+          {
+            "tag": "rect",
+            "attrs": {
+              "width": "3",
+              "height": "3",
+              "transform": "translate(23 13)",
+              "fill": "var(--cat-color)"
+            },
+            "children": []
+          },
+          {
+            "tag": "rect",
+            "attrs": {
+              "width": "1",
+              "height": "3",
+              "transform": "translate(13 13)",
+              "fill": "var(--eye-bg-color, #FFFFFF)"
+            },
+            "children": []
+          },
+          {
+            "tag": "rect",
+            "attrs": {
+              "width": "1",
+              "height": "3",
+              "transform": "translate(17 13)",
+              "fill": "var(--eye-bg-color, #FFFFFF)"
+            },
+            "children": []
+          },
+          {
+            "tag": "rect",
+            "attrs": {
+              "width": "3",
+              "height": "5",
+              "transform": "translate(14 12)",
+              "fill": "var(--eye-bg-color, #FFFFFF)"
+            },
+            "children": []
+          },
+          {
+            "tag": "rect",
+            "attrs": {
+              "width": "3",
+              "height": "3",
+              "transform": "translate(14 13)",
+              "fill": "var(--cat-color)"
+            },
+            "children": []
+          },
+          {
+            "tag": "path",
+            "attrs": {
+              "id": "leg-fr-start",
+              "d": "M29 26H27V31H28V34H29V37H31V32H30V28H29V26Z",
+              "fill": "var(--cat-color)"
+            },
+            "children": []
+          },
+          {
+            "tag": "path",
+            "attrs": {
+              "id": "leg-rl-start",
+              "d": "M10 55V51H18V55H17V57H16V59H12V57H11V55H10Z",
+              "fill": "var(--cat-color)"
+            },
+            "children": []
+          },
+          {
+            "tag": "path",
+            "attrs": {
+              "id": "leg-rr-start",
+              "d": "M22 55V51H30V55H29V57H28V59H24V57H23V55H22Z",
+              "fill": "var(--cat-color)"
+            },
+            "children": []
+          }
+        ]
+      }
+    },
+    {
+      "name": "sleep-curl",
+      "file": "generated:sleep-curl",
+      "viewBox": "-8 -10 50 50",
+      "root": {
+        "tag": "svg",
+        "attrs": {
+          "viewBox": "-8 -10 50 50",
+          "width": "500",
+          "height": "500"
+        },
+        "children": [
+          {
+            "tag": "defs",
+            "attrs": {},
+            "children": [
+              {
+                "tag": "clipPath",
+                "attrs": {
+                  "id": "head-clip"
+                },
+                "children": [
+                  {
+                    "tag": "path",
+                    "attrs": {
+                      "transform": "translate(3 4)",
+                      "d": "M4 3H2V5H1V7H0V12H1V16H3V17H4V18H6V19H16V18H18V17H19V16H20V15H21V12H22V8H21V5H20V4H19V3H17V2H15V1H7V2H4V3Z"
+                    },
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "tag": "clipPath",
+                "attrs": {
+                  "id": "body-clip"
+                },
+                "children": [
+                  {
+                    "tag": "path",
+                    "attrs": {
+                      "transform": "translate(3 19)",
+                      "d": "M15 0V1H18V2H20V3H21V6H22V11H21V14H19V15H3V14H1V11H0V6H1V3H2V2H4V1H7V0H15Z"
+                    },
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "tag": "clipPath",
+                "attrs": {
+                  "id": "leg-fl-clip"
+                },
+                "children": [
+                  {
+                    "tag": "path",
+                    "attrs": {
+                      "d": "M6 29V26H7V25H10V26H11V28H12V31H13V32H14V35H13V36H9V35H8V31H7V29H6Z"
+                    },
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "tag": "clipPath",
+                "attrs": {
+                  "id": "leg-fr-clip"
+                },
+                "children": [
+                  {
+                    "tag": "path",
+                    "attrs": {
+                      "d": "M23 29V26H22V25H19V26H18V28H17V31H16V32H15V35H16V36H20V35H21V31H22V29H23Z"
+                    },
+                    "children": []
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "tag": "g",
+            "attrs": {
+              "id": "body-js"
+            },
+            "children": [
+              {
+                "tag": "g",
+                "attrs": {
+                  "class": "breathe-anim"
+                },
+                "children": [
+                  {
+                    "tag": "g",
+                    "attrs": {
+                      "class": "hunting-body-grow"
+                    },
+                    "children": [
+                      {
+                        "tag": "g",
+                        "attrs": {
+                          "id": "body",
+                          "fill": "var(--cat-color)",
+                          "data-patch-frame": "3 19 1 1",
+                          "transform": "translate(14 34) scale(1.18 0.74) translate(-14 -34)"
+                        },
+                        "children": [
+                          {
+                            "tag": "path",
+                            "attrs": {
+                              "transform": "translate(3 19)",
+                              "d": "M15 0V1H18V2H20V3H21V6H22V11H21V14H19V15H3V14H1V11H0V6H1V3H2V2H4V1H7V0H15Z"
+                            },
+                            "children": []
+                          },
+                          {
+                            "tag": "g",
+                            "attrs": {
+                              "class": "patches",
+                              "clip-path": "url(#body-clip)"
+                            },
+                            "children": []
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "tag": "g",
+                    "attrs": {
+                      "id": "face-js",
+                      "transform": "translate(1.5 5)"
+                    },
+                    "children": [
+                      {
+                        "tag": "g",
+                        "attrs": {
+                          "class": "whiskers-flex"
+                        },
+                        "children": [
+                          {
+                            "tag": "g",
+                            "attrs": {
+                              "id": "whiskers",
+                              "fill": "var(--cat-color)",
+                              "data-heat-overlay": "true"
+                            },
+                            "children": [
+                              {
+                                "tag": "rect",
+                                "attrs": {
+                                  "x": "0",
+                                  "y": "14",
+                                  "width": "5",
+                                  "height": "1"
+                                },
+                                "children": []
+                              },
+                              {
+                                "tag": "rect",
+                                "attrs": {
+                                  "x": "23",
+                                  "y": "14",
+                                  "width": "5",
+                                  "height": "1"
+                                },
+                                "children": []
+                              },
+                              {
+                                "tag": "rect",
+                                "attrs": {
+                                  "x": "0",
+                                  "y": "17",
+                                  "width": "6",
+                                  "height": "1"
+                                },
+                                "children": []
+                              },
+                              {
+                                "tag": "rect",
+                                "attrs": {
+                                  "x": "23",
+                                  "y": "17",
+                                  "width": "6",
+                                  "height": "1"
+                                },
+                                "children": []
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "tag": "g",
+                        "attrs": {
+                          "class": "ear-twitch-l"
+                        },
+                        "children": [
+                          {
+                            "tag": "g",
+                            "attrs": {
+                              "id": "ear-left",
+                              "data-ear-position": "5 2"
+                            },
+                            "children": []
+                          }
+                        ]
+                      },
+                      {
+                        "tag": "g",
+                        "attrs": {
+                          "class": "ear-twitch-r"
+                        },
+                        "children": [
+                          {
+                            "tag": "g",
+                            "attrs": {
+                              "id": "ear-right",
+                              "data-ear-position": "17 2"
+                            },
+                            "children": []
+                          }
+                        ]
+                      },
+                      {
+                        "tag": "g",
+                        "attrs": {
+                          "id": "head",
+                          "fill": "var(--cat-color)",
+                          "data-patch-frame": "3 5 1 1"
+                        },
+                        "children": [
+                          {
+                            "tag": "path",
+                            "attrs": {
+                              "transform": "translate(3 4)",
+                              "d": "M4 3H2V5H1V7H0V12H1V16H3V17H4V18H6V19H16V18H18V17H19V16H20V15H21V12H22V8H21V5H20V4H19V3H17V2H15V1H7V2H4V3Z"
+                            },
+                            "children": []
+                          },
+                          {
+                            "tag": "g",
+                            "attrs": {
+                              "class": "patches",
+                              "clip-path": "url(#head-clip)"
+                            },
+                            "children": []
+                          }
+                        ]
+                      },
+                      {
+                        "tag": "g",
+                        "attrs": {
+                          "id": "eyes-js"
+                        },
+                        "children": [
+                          {
+                            "tag": "g",
+                            "attrs": {
+                              "class": "eye-l-blink"
+                            },
+                            "children": [
+                              {
+                                "tag": "g",
+                                "attrs": {
+                                  "id": "eye-left"
+                                },
+                                "children": [
+                                  {
+                                    "tag": "g",
+                                    "attrs": {
+                                      "fill": "var(--eye-bg-color, #FFFFFF)"
+                                    },
+                                    "children": [
+                                      {
+                                        "tag": "rect",
+                                        "attrs": {
+                                          "x": "7",
+                                          "y": "11",
+                                          "width": "1",
+                                          "height": "3"
+                                        },
+                                        "children": []
+                                      },
+                                      {
+                                        "tag": "rect",
+                                        "attrs": {
+                                          "x": "11",
+                                          "y": "11",
+                                          "width": "1",
+                                          "height": "3"
+                                        },
+                                        "children": []
+                                      },
+                                      {
+                                        "tag": "rect",
+                                        "attrs": {
+                                          "x": "8",
+                                          "y": "10",
+                                          "width": "3",
+                                          "height": "5"
+                                        },
+                                        "children": []
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "tag": "rect",
+                                    "attrs": {
+                                      "id": "pupil-left",
+                                      "class": "pupil-left",
+                                      "x": "8",
+                                      "y": "11",
+                                      "width": "3",
+                                      "height": "3",
+                                      "fill": "var(--eye-color-left, var(--eye-color, var(--cat-color)))"
+                                    },
+                                    "children": []
+                                  }
+                                ]
+                              }
+                            ]
+                          },
+                          {
+                            "tag": "g",
+                            "attrs": {
+                              "class": "eye-r-blink"
+                            },
+                            "children": [
+                              {
+                                "tag": "g",
+                                "attrs": {
+                                  "id": "eye-right"
+                                },
+                                "children": [
+                                  {
+                                    "tag": "g",
+                                    "attrs": {
+                                      "fill": "var(--eye-bg-color, #FFFFFF)"
+                                    },
+                                    "children": [
+                                      {
+                                        "tag": "rect",
+                                        "attrs": {
+                                          "x": "16",
+                                          "y": "11",
+                                          "width": "1",
+                                          "height": "3"
+                                        },
+                                        "children": []
+                                      },
+                                      {
+                                        "tag": "rect",
+                                        "attrs": {
+                                          "x": "20",
+                                          "y": "11",
+                                          "width": "1",
+                                          "height": "3"
+                                        },
+                                        "children": []
+                                      },
+                                      {
+                                        "tag": "rect",
+                                        "attrs": {
+                                          "x": "17",
+                                          "y": "10",
+                                          "width": "3",
+                                          "height": "5"
+                                        },
+                                        "children": []
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "tag": "rect",
+                                    "attrs": {
+                                      "id": "pupil-right",
+                                      "class": "pupil-right",
+                                      "x": "17",
+                                      "y": "11",
+                                      "width": "3",
+                                      "height": "3",
+                                      "fill": "var(--eye-color-right, var(--eye-color, var(--cat-color)))"
+                                    },
+                                    "children": []
+                                  }
+                                ]
+                              }
+                            ]
+                          },
+                          {
+                            "tag": "rect",
+                            "attrs": {
+                              "class": "closed-eye-line",
+                              "x": "7",
+                              "y": "12",
+                              "width": "5",
+                              "height": "1",
+                              "fill": "var(--cat-outline)"
+                            },
+                            "children": []
+                          },
+                          {
+                            "tag": "rect",
+                            "attrs": {
+                              "class": "closed-eye-line",
+                              "x": "16",
+                              "y": "12",
+                              "width": "5",
+                              "height": "1",
+                              "fill": "var(--cat-outline)"
+                            },
+                            "children": []
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "tag": "g",
+                    "attrs": {
+                      "class": "hunting-tail-rise"
+                    },
+                    "children": [
+                      {
+                        "tag": "g",
+                        "attrs": {
+                          "class": "tail-sway"
+                        },
+                        "children": [
+                          {
+                            "tag": "g",
+                            "attrs": {
+                              "id": "tail",
+                              "fill": "var(--cat-color)"
+                            },
+                            "children": [
+                              {
+                                "tag": "path",
+                                "attrs": {
+                                  "d": "M24 31H8V32H6V33H5V34H24V31Z"
+                                },
+                                "children": []
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

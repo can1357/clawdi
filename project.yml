@@ -1,0 +1,50 @@
+name: Clawdi
+options:
+  minimumXcodeGenVersion: 2.45.0
+  deploymentTarget:
+    macOS: "14.0"
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    CODE_SIGNING_ALLOWED: YES
+    CODE_SIGN_STYLE: Manual
+    CODE_SIGN_IDENTITY: Apple Development
+    DEVELOPMENT_TEAM: VTLHGQC72S
+    ENABLE_HARDENED_RUNTIME: NO
+targets:
+  Clawdi:
+    type: application
+    platform: macOS
+    sources:
+      - path: Sources/Clawdi
+      - path: Sources/Shared
+      - path: Resources
+        buildPhase: resources
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: app.clawdi
+        PRODUCT_NAME: Clawdi
+        INFOPLIST_FILE: Sources/Clawdi/App/Info.plist
+        MACOSX_DEPLOYMENT_TARGET: "14.0"
+        ASSETCATALOG_COMPILER_APPICON_NAME: ""
+  ClawdiTests:
+    type: bundle.unit-test
+    platform: macOS
+    sources:
+      - path: Tests/ClawdiTests
+    dependencies:
+      - target: Clawdi
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+        PRODUCT_BUNDLE_IDENTIFIER: app.clawdi.tests
+        MACOSX_DEPLOYMENT_TARGET: "14.0"
+schemes:
+  Clawdi:
+    build:
+      targets:
+        Clawdi: all
+        ClawdiTests: [test]
+    test:
+      targets:
+        - ClawdiTests
