@@ -48,12 +48,13 @@ spctl --assess --type execute --verbose=2 DerivedData/Build/Products/Release/Cla
 
 ### GitHub releases
 
-Pushing a version tag creates a GitHub Release containing the signed, notarized, universal `Clawdi-macos-universal.zip`. The tag must match `CFBundleShortVersionString` in `Sources/Clawdi/App/Info.plist`, prefixed with `v`; for the current version:
+Pushing a version tag creates a GitHub Release containing the signed, notarized, universal `Clawdi-macos-universal.zip`. From a clean `main` checkout, publish one with:
 
 ```sh
-git tag v0.1.37
-git push origin v0.1.37
+Tools/release/publish-version.sh minor  # major | minor | patch
 ```
+
+The script updates `CFBundleShortVersionString`, commits `chore: bumped version to <version>`, pushes `main`, creates the matching `v<version>` tag, and pushes that tag to trigger the release workflow.
 
 Before the first release, add these repository **Actions secrets** under **Settings → Secrets and variables → Actions**:
 

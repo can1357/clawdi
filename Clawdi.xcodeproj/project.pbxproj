@@ -41,6 +41,7 @@
 		68A0DC755B35694E40DDCFAD /* calico.png in Resources */ = {isa = PBXBuildFile; fileRef = B8512EE25130EFE2DC7AB63B /* calico.png */; };
 		6B1E97BF516199763454EE6C /* HookInstaller.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AF27511B5B7EE454A417609 /* HookInstaller.swift */; };
 		6CAD046E07348E4704C3D9DB /* Settings.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC5A11BD844F42D1451BE4DA /* Settings.swift */; };
+		6DAF5AA508DEA849DD520D77 /* make-icon.py in Resources */ = {isa = PBXBuildFile; fileRef = FF357FC0AEEA93F9DF858F99 /* make-icon.py */; };
 		7325789BE2A87C6E586603C5 /* LaunchAtLogin.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B9B486AC75685A1F4A330E4 /* LaunchAtLogin.swift */; };
 		7510AA5CA19411642768DF84 /* PatternEditorWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1E052CC548FE1CB92FA3B34 /* PatternEditorWindow.swift */; };
 		77A4098D68033A38D8E5F14F /* InlineEditorOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3F8D239D26944B314D1BAB7 /* InlineEditorOverlay.swift */; };
@@ -151,6 +152,7 @@
 		F494C00D40358686D83279B4 /* ClawdiTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClawdiTests.swift; sourceTree = "<group>"; };
 		F5BB591A0BF0D28B104FDD04 /* MenuBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBuilder.swift; sourceTree = "<group>"; };
 		FC5A11BD844F42D1451BE4DA /* Settings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Settings.swift; sourceTree = "<group>"; };
+		FF357FC0AEEA93F9DF858F99 /* make-icon.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; path = "make-icon.py"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -283,6 +285,7 @@
 				66E0455999263CC1CA6D60BE /* cell-mappings.json */,
 				3AD641251054E34158277DD2 /* Clawdi.icns */,
 				BEA71D1DC20968C718CB7B44 /* ClawdiIcon.png */,
+				FF357FC0AEEA93F9DF858F99 /* make-icon.py */,
 				6D24B98A02CF2F149CE311F8 /* poses.json */,
 				82F8126DFDE716B5A245984D /* img */,
 				DBB5A0F8A772B1161D84F432 /* logos */,
@@ -487,6 +490,7 @@
 				EE0B373C5E46D4CB42625F31 /* flower-poses.json in Resources */,
 				27A18B72540CAE19145C75AC /* mackerel-tabby.json in Resources */,
 				7FED742906F6885C791F42C8 /* mackerel.png in Resources */,
+				6DAF5AA508DEA849DD520D77 /* make-icon.py in Resources */,
 				5EEA12264BA277B30632743C /* meow-alert.m4a in Resources */,
 				81319CA6EBBAB08EF7830FB6 /* meow.m4a in Resources */,
 				F393D9823C2E590E17BFF0DD /* openai.png in Resources */,

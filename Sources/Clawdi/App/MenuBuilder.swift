@@ -161,7 +161,7 @@ extension NSMenu {
 
 extension ClawdiController {
     @objc func showAbout() {
-        NSApp.orderFrontStandardAboutPanel(options: [.applicationName: "Clawdi", .applicationVersion: "0.1.37"])
+        NSApp.orderFrontStandardAboutPanel(options: [.applicationName: "Clawdi"])
     }
 
     @objc func editFixedMessage() {
