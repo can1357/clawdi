@@ -101,6 +101,14 @@ extension ClawdiController {
         }
         menu.addItem(submenu: extensions, title: "Extensions")
 
+        let logMonitoring = NSMenu(title: "Log monitoring")
+        for source in AgentLogSource.allCases {
+            add(
+                logMonitoring, source.displayName, #selector(toggleLogMonitor(_:)), represented: source.rawValue,
+                state: settings.enabledLogMonitors.contains(source))
+        }
+        menu.addItem(submenu: logMonitoring, title: "Log monitoring")
+
         let sound = NSMenu(title: "Task-complete sound")
         for vol in [0.0, 0.1, 0.6, 0.9] {
             add(
@@ -219,6 +227,18 @@ extension ClawdiController {
         }) else { return }
         reconcileHooksBestEffort()
     }
+    @objc func toggleLogMonitor(_ sender: NSMenuItem) {
+        guard let raw = sender.representedObject as? String, let source = AgentLogSource(rawValue: raw) else { return }
+        guard editSettings({ settings in
+            if settings.enabledLogMonitors.contains(source) {
+                settings.enabledLogMonitors.remove(source)
+            } else {
+                settings.enabledLogMonitors.insert(source)
+            }
+        }) else { return }
+        monitors.enabledSources = settings.enabledLogMonitors
+    }
+
     @objc func togglePomodoro() { if pomodoro.running { pomodoro.pause() } else { pomodoro.startOrResume() } }
     @objc func resetPomodoro() { pomodoro.reset() }
 

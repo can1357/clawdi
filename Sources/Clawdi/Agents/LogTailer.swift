@@ -137,6 +137,19 @@ final class LogTailer {
 /// (recursive directory walks — Cursor's log tree alone is hundreds of entries) previously ran
 /// on the main actor every poll and cost more CPU than rendering the pet; it is now cached for
 /// `Engine.discoveryInterval` so each poll normally only re-reads the tails of known files.
+/// A local agent log source that can be independently monitored.
+enum AgentLogSource: String, CaseIterable, Codable, Sendable {
+    case codex
+    case kiro
+
+    var displayName: String {
+        switch self {
+        case .codex: return "Codex"
+        case .kiro: return "Kiro"
+        }
+    }
+}
+
 @MainActor
 final class AgentLogMonitors {
     private static let pollInterval: TimeInterval = 1.5
@@ -144,6 +157,7 @@ final class AgentLogMonitors {
     private let engine = Engine()
     private var pollTask: Task<Void, Never>?
     var emit: ((AgentStateEvent) -> Void)?
+    var enabledSources = Set(AgentLogSource.allCases)
 
     func start() {
         stop()
@@ -151,7 +165,7 @@ final class AgentLogMonitors {
         pollTask = Task(priority: .utility) { [weak self] in
             await engine.reset()
             while !Task.isCancelled {
-                let events = await engine.poll()
+                let events = await engine.poll(enabledSources: self?.enabledSources ?? [])
                 guard !Task.isCancelled else { return }
                 if let emit = self?.emit {
                     for event in events { emit(event) }
@@ -182,20 +196,24 @@ final class AgentLogMonitors {
             discovered.removeAll()
         }
 
-        func poll() -> [AgentStateEvent] {
+        func poll(enabledSources: Set<AgentLogSource>) -> [AgentStateEvent] {
             var events: [AgentStateEvent] = []
             let home = FileManager.default.homeDirectoryForCurrentUser
-            tailer("codex").poll(
-                candidates: candidates("codex") { codexFiles(home: home) },
-                parse: { CodexLogParser.parse(line: $0, url: $1) }
-            ) { events.append($0) }
-            tailer("kiro").poll(
-                candidates: candidates("kiro") {
-                    recursiveLogs(
-                        home.appendingPathComponent("Library/Application Support/Kiro/logs"), suffix: ".log")
-                },
-                parse: { KiroLogParser.parse(line: $0, url: $1) }
-            ) { events.append($0) }
+            if enabledSources.contains(.codex) {
+                tailer("codex").poll(
+                    candidates: candidates("codex") { codexFiles(home: home) },
+                    parse: { CodexLogParser.parse(line: $0, url: $1) }
+                ) { events.append($0) }
+            }
+            if enabledSources.contains(.kiro) {
+                tailer("kiro").poll(
+                    candidates: candidates("kiro") {
+                        recursiveLogs(
+                            home.appendingPathComponent("Library/Application Support/Kiro/logs"), suffix: ".log")
+                    },
+                    parse: { KiroLogParser.parse(line: $0, url: $1) }
+                ) { events.append($0) }
+            }
             tailer("cursor").poll(
                 candidates: candidates("cursor") {
                     recursiveLogs(

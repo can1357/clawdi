@@ -124,6 +124,7 @@ final class ClawdiController: NSObject, PetViewDelegate {
         agentServer.onSessionsExpired = { [weak self] in self?.handleAgentSessionsExpired() }
         agentServer.enabledExtensions = settings.enabledExtensions
         try? agentServer.start()
+        monitors.enabledSources = settings.enabledLogMonitors
         monitors.emit = { [weak self] event in _ = self?.agentServerOutput(event) }
         monitors.start()
         input.onKeyDown = { [weak self] in self?.handleKeyDown() }

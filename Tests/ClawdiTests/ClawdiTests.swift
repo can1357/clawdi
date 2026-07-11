@@ -889,6 +889,19 @@ final class ClawdiTests: XCTestCase {
             XCTAssertEqual(item.action, #selector(ClawdiController.toggleExtension(_:)))
             XCTAssertEqual(item.state, .on)
         }
+        let logMonitoring = try XCTUnwrap(menu.items.first { $0.title == "Log monitoring" }?.submenu)
+        XCTAssertEqual(logMonitoring.items.count, AgentLogSource.allCases.count)
+        for source in AgentLogSource.allCases {
+            let item = try XCTUnwrap(logMonitoring.items.first { $0.representedObject as? String == source.rawValue })
+            XCTAssertEqual(item.title, source.displayName)
+            XCTAssertEqual(item.action, #selector(ClawdiController.toggleLogMonitor(_:)))
+            XCTAssertEqual(item.state, .on)
+        }
+
+        let codex = try XCTUnwrap(logMonitoring.items.first { $0.representedObject as? String == AgentLogSource.codex.rawValue })
+        controller.toggleLogMonitor(codex)
+        XCTAssertFalse(controller.settings.enabledLogMonitors.contains(.codex))
+        XCTAssertFalse(controller.monitors.enabledSources.contains(.codex))
     }
 
     @MainActor

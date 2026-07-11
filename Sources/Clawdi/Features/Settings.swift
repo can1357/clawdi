@@ -17,6 +17,7 @@ struct ClawdiSettings: Codable, Equatable, Sendable {
     var skin: PetSkin
     var launchAtLogin: Bool
     var enabledExtensions: Set<AgentEventSource>
+    var enabledLogMonitors: Set<AgentLogSource>
 
     enum CodingKeys: String, CodingKey {
         case stretchIntervalMin
@@ -34,6 +35,7 @@ struct ClawdiSettings: Codable, Equatable, Sendable {
         case skin
         case launchAtLogin
         case enabledExtensions
+        case enabledLogMonitors
     }
 
     init(
@@ -51,7 +53,8 @@ struct ClawdiSettings: Codable, Equatable, Sendable {
         pomodoroRestSec: Int = 300,
         skin: PetSkin = .flowerClaude,
         launchAtLogin: Bool = true,
-        enabledExtensions: Set<AgentEventSource> = AgentEventSource.extensions
+        enabledExtensions: Set<AgentEventSource> = AgentEventSource.extensions,
+        enabledLogMonitors: Set<AgentLogSource> = Set(AgentLogSource.allCases)
     ) {
         self.stretchIntervalMin = stretchIntervalMin
         self.reminders = reminders
@@ -68,6 +71,7 @@ struct ClawdiSettings: Codable, Equatable, Sendable {
         self.skin = skin
         self.launchAtLogin = launchAtLogin
         self.enabledExtensions = enabledExtensions
+        self.enabledLogMonitors = enabledLogMonitors
     }
 
     init(from decoder: Decoder) throws {
@@ -94,7 +98,8 @@ struct ClawdiSettings: Codable, Equatable, Sendable {
             pomodoroRestSec: restSec > 0 ? restSec : 300,
             skin: Self.lenient(c, .skin, default: PetSkin.flowerClaude),
             launchAtLogin: Self.lenient(c, .launchAtLogin, default: true),
-            enabledExtensions: Self.lenient(c, .enabledExtensions, default: AgentEventSource.extensions)
+            enabledExtensions: Self.lenient(c, .enabledExtensions, default: AgentEventSource.extensions),
+            enabledLogMonitors: Self.lenient(c, .enabledLogMonitors, default: Set(AgentLogSource.allCases))
         )
         self = sanitized()
     }
@@ -124,6 +129,7 @@ struct ClawdiSettings: Codable, Equatable, Sendable {
         s.pomodoroFocusMin = min(180, max(1, pomodoroFocusMin))
         s.pomodoroRestSec = min(3600, max(30, pomodoroRestSec))
         s.enabledExtensions = enabledExtensions.intersection(AgentEventSource.extensions)
+        s.enabledLogMonitors = enabledLogMonitors.intersection(Set(AgentLogSource.allCases))
         return s
     }
 }

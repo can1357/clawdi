@@ -29,7 +29,7 @@ Clawdi sits on your desktop, lives its little life, and reports on your coding a
 
 On launch, Clawdi quietly wires itself into **Claude Code** (`~/.claude/settings.json`), **Cursor** (`~/.cursor/hooks.json`), **Antigravity** (`~/.gemini/config/hooks.json`), and **omp** (a generated extension in `~/.omp/agent/extensions/`). **Codex** and **Kiro** don't even need that — it just tails their logs. Under the hood every hook calls the app binary itself (`Clawdi --clawdi-hook <event>`), which drops one JSON event onto a local Unix socket. That's the whole protocol.
 
-Use **right-click → Extensions** to disable Claude Code, Cursor, Antigravity, or omp independently. Disabling an extension removes Clawdi's hook configuration (or its omp module) immediately and rejects any late event from that extension's tagged socket protocol; enabling it reinstalls the integration. Codex and Kiro log monitoring stay on.
+Use **right-click → Extensions** to disable Claude Code, Cursor, Antigravity, or omp independently. Disabling an extension removes Clawdi's hook configuration (or its omp module) immediately and rejects any late event from that extension's tagged socket protocol; enabling it reinstalls the integration. **right-click → Log monitoring** independently starts or stops Codex and Kiro log reading.
 
 While your agents work, the pet thinks along: animated dots, a badge counting live sessions per vendor with the OpenAI and Anthropic marks (that's the "58 … 6" in the video — yes, those were real), and it kneads its front paws like a blanket whenever you're not typing. When something actually needs you, it does one of these:
 
