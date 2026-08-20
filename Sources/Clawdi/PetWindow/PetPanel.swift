@@ -47,6 +47,15 @@ final class PetView: NSView {
             chromeView.needsDisplay = true
         }
     }
+    /// Transparent sky band above the resting cat square (`WindowGeometry.skyRoom`), reserved so
+    /// edit pops can arc above the pet. Shifts `catDrawRect` down; zero during the temporarily
+    /// expanded stretch/focus sequences, which want the cat to fill the whole window.
+    var skyRoom: CGFloat = 0 {
+        didSet {
+            needsLayout = true
+            chromeView.needsDisplay = true
+        }
+    }
 
     private var dragStartMouse: CGPoint?
     private var dragStartFrame: CGRect?
@@ -85,6 +94,7 @@ final class PetView: NSView {
         let anthropicCount: Int
         let bubbleJump: Int
         let jumpSparkle: Int
+        let editPops: Int
         let reactionBadge: ReactionBadge
         let reactionBadgePhase: Int
         let animatedChromeFrame: Int
@@ -175,11 +185,12 @@ final class PetView: NSView {
     private var isLifting: Bool { state.mochiStretchActive && state.pose == .stretchEnd && compositor.usesMochiLift }
 
     func catDrawRect() -> CGRect {
-        let resting = restingHeight > 0 ? min(restingHeight, bounds.height) : bounds.height
+        let usable = max(0, bounds.height - skyRoom)
+        let resting = restingHeight > 0 ? min(restingHeight, usable) : usable
         let side = min(bounds.width, resting)
         return CGRect(
-            x: (bounds.width - side) * 0.5, y: (resting - side) * WindowGeometry.catTopFraction, width: side,
-            height: side)
+            x: (bounds.width - side) * 0.5, y: skyRoom + (resting - side) * WindowGeometry.catTopFraction,
+            width: side, height: side)
     }
 
     /// Render above backing resolution and downsample with high interpolation. The extra sample
@@ -329,7 +340,7 @@ final class PetView: NSView {
         case .cat:
             y = catRect.minY + catRect.height * 0.28
         case .top:
-            y = 4
+            y = skyRoom + 4
         }
         return CGRect(x: max(4, x), y: y, width: min(config.width, bounds.width - 8), height: height)
     }
@@ -378,6 +389,7 @@ final class PetView: NSView {
             anthropicCount: state.anthropicCount,
             bubbleJump: Int((state.bubbleJumpY * 1000).rounded()),
             jumpSparkle: Int((state.jumpPhase * 48).rounded()),
+            editPops: state.editPops.count,
             reactionBadge: state.reactionBadge,
             reactionBadgePhase: Int((state.reactionBadgePhase * 1000).rounded()),
             animatedChromeFrame: animatedChromeFrame(for: state)
@@ -388,7 +400,8 @@ final class PetView: NSView {
         let heatSteamVisible =
             !(state.mochiStretchActive || state.pose == .stretchDefault || state.pose == .stretchStart
             || state.pose == .stretchEnd) && state.heat > 0.5
-        guard state.purring || state.thinking || state.sleeping || heatSteamVisible else { return 0 }
+        guard state.purring || state.thinking || state.sleeping || heatSteamVisible || !state.editPops.isEmpty
+        else { return 0 }
         return Int((state.time * Self.animatedChromeFramesPerSecond).rounded())
     }
 
@@ -412,6 +425,7 @@ final class PetView: NSView {
         if state.purring { drawPurrHearts(in: ctx, catRect: catRect) }
         if state.sleeping { drawSleepZs(in: ctx, catRect: catRect) }
         if state.jumpPhase > 0 { drawJumpSparkles(in: ctx, catRect: catRect) }
+        if !state.editPops.isEmpty { drawEditPops(in: ctx, catRect: catRect) }
         if state.showName && !isLifting {
             drawBadge(state.catName, at: CGPoint(x: catRect.midX, y: catRect.maxY - 26))
         }
@@ -457,6 +471,73 @@ final class PetView: NSView {
             }
         }
         ctx.restoreGState()
+    }
+
+    private static let editPopGreen = NSColor(srgbRed: 0.05, green: 0.52, blue: 0.16, alpha: 1)
+    private static let editPopRed = NSColor(srgbRed: 0.83, green: 0.15, blue: 0.12, alpha: 1)
+
+    /// FPS damage numbers for agent edits: each `EditPop` is a white rounded pill reading
+    /// `project>file +a -r` (`+` green, `-` red, zero counts omitted upstream) launched off the
+    /// head at its random 45°–135° angle on a ballistic arc — apex `rise`× the pet square above
+    /// the launch point, into the window's reserved sky room — landing back at the launch height,
+    /// then fading out in place over `EditPop.fadeDuration`. Horizontal range follows ballistics
+    /// (4·apex/tan(angle)) capped at the window edges. Position and envelope derive purely from
+    /// `spawnedAt` vs `state.time`; expired pops are pruned by the controller's frame tick.
+    private func drawEditPops(in ctx: CGContext, catRect: CGRect) {
+        let t = state.time
+        let scale = catRect.width / 50
+        for pop in state.editPops {
+            let q = t - pop.spawnedAt
+            guard q > 0 else { continue }
+            let landed = max(0, q - pop.flightTime)
+            guard landed < EditPop.fadeDuration else { continue }
+            // Airborne progress freezes at 1 on landing, so travel stops where the pill lands.
+            let f = CGFloat(min(1, q / pop.flightTime))
+            let alpha = min(1, CGFloat(q) / 0.08) * (1 - CGFloat(landed / EditPop.fadeDuration))
+            guard alpha > 0.01 else { continue }
+            let popIn = 0.7 + 0.3 * easeOutBack(min(1, CGFloat(q) / 0.1))
+
+            var segments: [(text: String, color: NSColor)] = [(pop.label, .black)]
+            if pop.added > 0 { segments.append((" +\(pop.added)", Self.editPopGreen)) }
+            if pop.removed > 0 { segments.append((" -\(pop.removed)", Self.editPopRed)) }
+            let font = NSFont.monospacedSystemFont(ofSize: 11 * popIn, weight: .bold)
+            let rendered = segments.map { segment in
+                NSAttributedString(
+                    string: segment.text,
+                    attributes: [.font: font, .foregroundColor: segment.color.withAlphaComponent(alpha)])
+            }
+            let textWidth = rendered.reduce(0) { $0 + $1.size().width }
+            let textHeight = rendered[0].size().height
+            let padX: CGFloat = 6
+            let padY: CGFloat = 2.5
+            let pillWidth = textWidth + padX * 2
+            let pillHeight = textHeight + padY * 2
+            // Launch at the chin (just below the sparkles/speech band); the parabola peaks at
+            // mid-flight, `rise` pet-squares above the launch point, and lands back at the launch
+            // height for the fade. The ceiling clamp is a safety net for tiny windows only.
+            let apex = pop.rise * catRect.height
+            let fullRange = 4 * apex * cos(pop.angle) / sin(pop.angle)
+            let rangeCap =
+                fullRange >= 0
+                ? bounds.maxX - pillWidth / 2 - 2 - catRect.midX
+                : bounds.minX + pillWidth / 2 + 2 - catRect.midX
+            let range = fullRange >= 0 ? min(fullRange, rangeCap) : max(fullRange, rangeCap)
+            let centerX = catRect.midX + range * f
+            let spawnY = catRect.minY + 20 * scale
+            let ceilingY = bounds.minY + pillHeight / 2 + 2
+            let arc = 4 * f * (1 - f)
+            let centerY = max(ceilingY, spawnY - arc * apex)
+            let pill = CGRect(
+                x: centerX - pillWidth / 2, y: centerY - pillHeight / 2,
+                width: pillWidth, height: pillHeight)
+            NSColor.white.withAlphaComponent(0.93 * alpha).setFill()
+            NSBezierPath(roundedRect: pill, xRadius: 7, yRadius: 7).fill()
+            var cursorX = pill.minX + padX
+            for run in rendered {
+                run.draw(at: CGPoint(x: cursorX, y: pill.minY + padY))
+                cursorX += run.size().width
+            }
+        }
     }
 
     /// Affection hearts while the cursor pets the head: staggered phases, a fade-in/out envelope,

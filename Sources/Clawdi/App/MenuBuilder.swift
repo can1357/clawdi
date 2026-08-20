@@ -655,14 +655,17 @@ extension ClawdiController {
     }
 
     private func updatePetSize(_ px: Int) {
+        let oldSky = petView.skyRoom
         guard editSettings({ $0.petSize = px }) else { return }
         let size = WindowGeometry.windowSize(petSize: settings.petSize)
-        // Keep the window's top edge (where the cat sits) fixed so resizing doesn't jump the cat; the
-        // dangle room grows downward.
-        let origin = CGPoint(x: panel.frame.minX, y: panel.frame.maxY - size.height)
+        let newSky = WindowGeometry.skyRoom(petSize: settings.petSize)
+        // Keep the cat's top edge fixed so resizing doesn't jump the cat: the sky band above it
+        // absorbs its own growth at the window top, and the dangle room grows downward.
+        let origin = CGPoint(x: panel.frame.minX, y: panel.frame.maxY - oldSky + newSky - size.height)
         panel.setFrame(CGRect(origin: origin, size: size), display: true, animate: true)
         petView.frame = CGRect(origin: .zero, size: size)
         petView.restingHeight = WindowGeometry.restingHeight(petSize: settings.petSize)
+        petView.skyRoom = newSky
     }
 
 }

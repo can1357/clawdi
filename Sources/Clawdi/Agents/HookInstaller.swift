@@ -248,6 +248,34 @@ struct HookInstaller {
           return null;
         }
 
+        // Per-file +N/-N line counts for a successful `edit` tool result, aggregated by path so a
+        // multi-op edit to one file reports a single entry. Counts come from each per-file unified
+        // diff (falling back to the single-file top-level diff); files with no +/- lines are
+        // dropped, and the list is capped so a sweeping refactor can't flood the socket payload.
+        function editStats(details) {
+          const entries = Array.isArray(details.perFileResults) && details.perFileResults.length
+            ? details.perFileResults
+            : [details];
+          const byPath = new Map();
+          for (const entry of entries) {
+            if (!entry || entry.isError) continue;
+            const path = nonEmptyString(entry.move) || nonEmptyString(entry.path);
+            if (!path || typeof entry.diff !== "string") continue;
+            let added = 0;
+            let removed = 0;
+            for (const line of entry.diff.split(/\\r?\\n/)) {
+              if (line.startsWith("+") && !line.startsWith("+++")) added++;
+              else if (line.startsWith("-") && !line.startsWith("---")) removed++;
+            }
+            if (!added && !removed) continue;
+            const prev = byPath.get(path) || { path, added: 0, removed: 0 };
+            prev.added += added;
+            prev.removed += removed;
+            byPath.set(path, prev);
+          }
+          return [...byPath.values()].slice(0, 8);
+        }
+
         function sessionTitle(pi, ctx) {
           try {
             const title = typeof pi.getSessionName === "function" ? pi.getSessionName() : null;
@@ -310,6 +338,19 @@ struct HookInstaller {
                 }
                 fire("session_stop", payload);
                 return;
+              }
+              // A successful edit tool result is re-emitted as file_edit carrying per-file +/-
+              // line counts, which the pet renders as flying damage-number diff stats. A failed
+              // or no-op edit falls through to the plain tool_result forward (still .working).
+              if (event === "tool_result" && data && data.toolName === "edit" && !data.isError && data.details) {
+                try {
+                  const files = editStats(data.details);
+                  if (files.length) {
+                    payload.files = files;
+                    fire("file_edit", payload);
+                    return;
+                  }
+                } catch {}
               }
               // agent_end fires for the main session AND every subagent; it falls through to a plain
               // forward that Clawdi maps to a quiet clear (.idle). The main session's completion is

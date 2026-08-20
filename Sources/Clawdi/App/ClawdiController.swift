@@ -225,6 +225,7 @@ final class ClawdiController: NSObject, PetViewDelegate {
         petView = PetView(
             frame: CGRect(origin: .zero, size: size), compositor: compositor, state: initial)
         petView.restingHeight = WindowGeometry.restingHeight(petSize: settings.petSize)
+        petView.skyRoom = WindowGeometry.skyRoom(petSize: settings.petSize)
         petView.delegate = self
         panel.contentView = petView
         panel.orderFrontRegardless()
@@ -365,6 +366,7 @@ final class ClawdiController: NSObject, PetViewDelegate {
         state.stretchingHeat = heat.stretchingHeat
         updateJump(now: now, state: &state)
         updateReaction(now: now, state: &state)
+        state.editPops.removeAll { now - $0.spawnedAt >= $0.flightTime + EditPop.fadeDuration }
         updatePurr(now: now, state: &state, moved: mouseMoved, mouse: mouse)
         updateCuriosity(now: now, state: &state, mouse: mouse, center: center, moved: mouseMoved)
         updateKnead(now: now, state: &state)
@@ -852,6 +854,7 @@ final class ClawdiController: NSObject, PetViewDelegate {
 
         let expanded = expandedSequenceFrame(on: screen)
         petView.restingHeight = expanded.height  // fill the temporarily expanded square (no dangle cap here)
+        petView.skyRoom = 0
         panel.setFrame(expanded, display: true, animate: true)
         perform(#selector(beginStretchPose), with: nil, afterDelay: 0.4)
         perform(#selector(restoreAfterStretch), with: nil, afterDelay: 3.6)
@@ -871,6 +874,7 @@ final class ClawdiController: NSObject, PetViewDelegate {
         stretchRestoreFrame = panel.frame
         let expanded = expandedSequenceFrame(on: screen)
         petView.restingHeight = expanded.height  // fill the temporarily expanded square (no dangle cap here)
+        petView.skyRoom = 0
         panel.setFrame(expanded, display: true, animate: true)
         perform(#selector(beginFocusStartBurst), with: nil, afterDelay: 0.160)
         perform(#selector(restoreAfterFocusStart), with: nil, afterDelay: 1.400)
@@ -926,6 +930,7 @@ final class ClawdiController: NSObject, PetViewDelegate {
     @objc private func restoreAfterStretch() {
         if let frame = stretchRestoreFrame { panel.setFrame(frame, display: true, animate: true) }
         petView.restingHeight = WindowGeometry.restingHeight(petSize: settings.petSize)
+        petView.skyRoom = WindowGeometry.skyRoom(petSize: settings.petSize)
         stretchInProgress = false
         stretchPoseStartedAt = nil
         stretchHeatUntil = 0
@@ -939,6 +944,7 @@ final class ClawdiController: NSObject, PetViewDelegate {
     @objc private func restoreAfterFocusStart() {
         if let frame = stretchRestoreFrame { panel.setFrame(frame, display: true, animate: true) }
         petView.restingHeight = WindowGeometry.restingHeight(petSize: settings.petSize)
+        petView.skyRoom = WindowGeometry.skyRoom(petSize: settings.petSize)
         focusStartTimer?.invalidate()
         focusStartTimer = nil
         focusStartInProgress = false
@@ -1020,6 +1026,7 @@ final class ClawdiController: NSObject, PetViewDelegate {
             cancelAntigravityThinkingTimer()
             petView.state.thinking = true
             refreshThinkingCounts()
+            if let edits = event.edits { spawnEditPops(edits, cwd: event.cwd, tuning: event.editTuning) }
             if event.agentId == "antigravity" { scheduleAntigravityThinkingTimer() }
         case .complete(let event):
             cancelAntigravityThinkingTimer()
@@ -1038,6 +1045,30 @@ final class ClawdiController: NSObject, PetViewDelegate {
         case .ignored:
             break
         }
+    }
+
+    /// Launch one flying `project>file +a -r` diff stat per edited file (see `EditPop`): staggered
+    /// spawn times, a random launch angle in the 45°–135° cone, and an apex 0.5–0.75× the pet
+    /// square above the launch point (flying into the window's reserved sky room). Demo events may
+    /// override flight time and apex height (see `EditPopTuning`). The live list is capped so an
+    /// edit storm can't wallpaper the window; the frame tick prunes each pop once its
+    /// flight-plus-fade expires.
+    private func spawnEditPops(_ edits: [FileEditStat], cwd: String?, tuning: EditPopTuning?) {
+        let now = CACurrentMediaTime()
+        var pops = petView.state.editPops
+        for (index, edit) in edits.enumerated() {
+            pops.append(
+                EditPop(
+                    label: EditPop.label(path: edit.path, cwd: cwd),
+                    added: edit.added,
+                    removed: edit.removed,
+                    spawnedAt: now + Double(index) * 0.28,
+                    flightTime: tuning?.flight ?? EditPop.defaultFlight,
+                    angle: CGFloat.random(in: (.pi / 4)...(3 * .pi / 4)),
+                    rise: tuning?.rise.map { CGFloat($0) } ?? CGFloat.random(in: 0.5...0.75)))
+        }
+        if pops.count > 12 { pops.removeFirst(pops.count - 12) }
+        petView.state.editPops = pops
     }
 
     /// Stale sessions aged out with no event arriving (dead agent): drop the thinking flag the

@@ -148,6 +148,12 @@ struct WindowGeometry {
     static let extraRight: CGFloat = 2
     /// Where the resting cat square sits within its resting region (42% of the slack above it).
     static let catTopFraction: CGFloat = 0.42
+    /// Transparent sky reserved above the resting cat square so flying edit-pop diff stats can
+    /// arc well above the pet (apex up to 1× the cat square) without clipping the window top.
+    static let skyRoomRatio: CGFloat = 0.6
+
+    /// Height of the reserved sky band above the resting cat square.
+    static func skyRoom(petSize: Int) -> CGFloat { (catSide(petSize: petSize) * skyRoomRatio).rounded() }
 
     /// Height the cat occupied before reserving dangle room — still drives the resting square's size
     /// and position so a taller window only adds transparent hang space *below* the cat.
@@ -168,7 +174,7 @@ struct WindowGeometry {
         let side = min(width, resting)
         let catTop = (resting - side) * catTopFraction
         let height = max(resting, (catTop + CatLayout.liftRoomBelow(catSide: side)).rounded())
-        return CGSize(width: width, height: height)
+        return CGSize(width: width, height: height + skyRoom(petSize: petSize))
     }
 
     static func defaultPosition(displayFrame: CGRect, windowSize: CGSize) -> CGPoint {

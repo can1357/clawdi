@@ -2354,6 +2354,35 @@ final class ClawdiTests: XCTestCase {
         XCTAssertEqual(
             HookMapping.event(agent: "omp", event: "tool_result", input: ["error": true])?.state, .working,
             "per-tool failures keep the session working; the turn continues")
+        // A successful edit is re-emitted as file_edit: still .working, but carrying per-file
+        // ±line counts the pet throws as flying diff stats.
+        let fileEdit = try XCTUnwrap(
+            HookMapping.event(
+                agent: "omp", event: "file_edit",
+                input: [
+                    "session_id": "s", "cwd": "/work/pi",
+                    "files": [
+                        ["path": "/work/pi/a/b/c.ts", "added": 12, "removed": 12],
+                        ["path": "/work/pi/only-adds.ts", "added": 3, "removed": 0],
+                    ],
+                ]))
+        XCTAssertEqual(fileEdit.state, .working)
+        XCTAssertEqual(
+            fileEdit.edits,
+            [
+                FileEditStat(path: "/work/pi/a/b/c.ts", added: 12, removed: 12),
+                FileEditStat(path: "/work/pi/only-adds.ts", added: 3, removed: 0),
+            ])
+        // Only file_edit carries edits; a plain tool_result never does.
+        XCTAssertNil(
+            HookMapping.event(agent: "omp", event: "tool_result", input: ["session_id": "s"])?.edits)
+        // Real omp events carry no flight tuning; demo-only flight/rise numbers ride along clamped.
+        XCTAssertNil(fileEdit.editTuning)
+        XCTAssertEqual(
+            HookMapping.popTuning(["flight": 99.0, "rise": 0.0]),
+            EditPopTuning(flight: 6, rise: 0.1))
+        XCTAssertEqual(HookMapping.popTuning(["flight": 1.8]), EditPopTuning(flight: 1.8, rise: nil))
+        XCTAssertNil(HookMapping.popTuning(["files": []]))
         XCTAssertEqual(HookMapping.event(agent: "omp", event: "ask_prompt", input: [:])?.state, .notification)
         XCTAssertEqual(HookMapping.event(agent: "omp", event: "plan_approval", input: [:])?.state, .notification)
         // Errors clear silently — no shake/alert reaction (the prior "omp hit an error" bubble was
@@ -2399,6 +2428,46 @@ final class ClawdiTests: XCTestCase {
             let text = try XCTUnwrap(response)
             XCTAssertNotNil(try JSONSerialization.jsonObject(with: Data(text.utf8)))
         }
+    }
+
+    func testOmpFileEditStatsParsingAndPopLabels() throws {
+        // Zero-zero and pathless entries are dropped; negative counts clamp to zero (and thus drop
+        // a fully-negative entry); the list caps at 8 so an edit storm can't flood the payload.
+        let files: [[String: Any]] =
+            [
+                ["path": "/r/keep.ts", "added": 1, "removed": 0],
+                ["path": "/r/none.ts", "added": 0, "removed": 0],
+                ["added": 5, "removed": 5],
+                ["path": "/r/negative.ts", "added": -3, "removed": -1],
+            ] + (0..<10).map { ["path": "/r/f\($0).ts", "added": 1, "removed": 1] }
+        let stats = HookMapping.editStats(["files": files])
+        XCTAssertEqual(stats.count, 8)
+        XCTAssertEqual(stats.first, FileEditStat(path: "/r/keep.ts", added: 1, removed: 0))
+        XCTAssertFalse(stats.contains { $0.path.contains("none") || $0.path.contains("negative") })
+        XCTAssertEqual(HookMapping.editStats([:]), [])
+        XCTAssertEqual(HookMapping.editStats(["files": "nope"]), [])
+
+        // Edits must survive the socket's JSON roundtrip — the custom Codable conformance would
+        // silently drop them otherwise, and the pet would never see an edit to throw.
+        let event = AgentStateEvent(
+            agentId: "omp", sessionId: "s", event: "file_edit", state: .working, cwd: "/work/pi",
+            edits: [FileEditStat(path: "/work/pi/a.ts", added: 2, removed: 1)], source: .omp)
+        let round = try JSONDecoder().decode(AgentStateEvent.self, from: JSONEncoder().encode(event))
+        XCTAssertEqual(round.edits, event.edits)
+
+        // The demo CLI passes flight tuning after a colon; bare names and junk pairs stay safe.
+        XCTAssertEqual(DemoCommand.parseTarget("edit").name, "edit")
+        XCTAssertTrue(DemoCommand.parseTarget("edit").options.isEmpty)
+        let tuned = DemoCommand.parseTarget("edit:flight=1.8,rise=0.6,junk,alsojunk=x")
+        XCTAssertEqual(tuned.name, "edit")
+        XCTAssertEqual(tuned.options, ["flight": 1.8, "rise": 0.6])
+
+        // `project>file` labels: cwd basename + file basename; no cwd keeps just the file; long
+        // file names keep their tail so the extension stays readable.
+        XCTAssertEqual(EditPop.label(path: "/work/pi/bla/bla/bla/bla.ts", cwd: "/work/pi"), "pi>bla.ts")
+        XCTAssertEqual(EditPop.label(path: "/work/pi/bla.ts", cwd: nil), "bla.ts")
+        let long = EditPop.label(path: "/r/AVeryLongFileNameThatKeepsGoingForever.swift", cwd: "/r")
+        XCTAssertEqual(long, "r>…KeepsGoingForever.swift")
     }
 
     func testOmpSessionStopCompletesWhileAgentEndClearsQuietly() throws {
@@ -2735,7 +2804,25 @@ final class ClawdiTests: XCTestCase {
             source.contains("errorMessage") && source.contains("abort"),
             "an abort that surfaces as stopReason error must still be treated as a quiet cancel, not an error")
         XCTAssertTrue(source.contains("\"resolve\""), "plan approval is detected from the resolve tool call")
-    }
+        XCTAssertTrue(
+            source.contains("\"file_edit\"") && source.contains("perFileResults"),
+            "successful edit results must be re-emitted as file_edit with per-file diff counts")
+        XCTAssertTrue(
+            source.contains("payload.files = files"),
+            "file_edit must carry the per-file ±line counts the pet renders as flying diff stats")
+    
+        // Generated module must be valid JavaScript that parses without syntax errors (e.g. unescaped newlines).
+        let scriptPath = extDir.appendingPathComponent("clawdi-omp-hook.js").path
+        let proc = Process()
+        proc.executableURL = URL(fileURLWithPath: "/bin/sh")
+        proc.arguments = ["-c", "export PATH=\"$HOME/.bun/bin:/opt/homebrew/bin:/usr/local/bin:$PATH\"; bun build \(scriptPath) --no-bundle 2>&1 || node --input-type=module -e 'import(\"\(scriptPath)\")' 2>&1"]
+        let pipe = Pipe()
+        proc.standardOutput = pipe
+        proc.standardError = pipe
+        try proc.run()
+        proc.waitUntilExit()
+        let output = String(data: pipe.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8) ?? ""
+        XCTAssertEqual(proc.terminationStatus, 0, "generated omp hook module must parse cleanly: \(output)")}
 
     func testCodexKiroAndCursorSampleLogParsers() throws {
         let codexStarted = try XCTUnwrap(
@@ -3117,9 +3204,13 @@ final class ClawdiTests: XCTestCase {
                 "resting cat square is unchanged from min(width, restingHeight)")
             XCTAssertGreaterThanOrEqual(size.width, WindowGeometry.windowWidth(petSize: petSize))
             let catTop = (resting - WindowGeometry.catSide(petSize: petSize)) * WindowGeometry.catTopFraction
+            let sky = WindowGeometry.skyRoom(petSize: petSize)
             XCTAssertGreaterThanOrEqual(
-                size.height, catTop + WindowGeometry.catSide(petSize: petSize) + 1,
-                "window reserves hang room below the resting cat")
+                size.height, sky + catTop + WindowGeometry.catSide(petSize: petSize) + 1,
+                "window reserves sky room above and hang room below the resting cat")
+            XCTAssertGreaterThanOrEqual(
+                sky, WindowGeometry.catSide(petSize: petSize) * 0.6 - 1,
+                "sky room covers an edit-pop apex up to 1x the pet square above the chin launch point")
         }
     }
 
@@ -3145,7 +3236,11 @@ final class ClawdiTests: XCTestCase {
                     data: nil, width: width, height: height, bitsPerComponent: 8, bytesPerRow: width * 4,
                     space: CGColorSpaceCreateDeviceRGB(),
                     bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue))
-            try XCTUnwrap(view.layer).render(in: ctx)
+            func renderLayers(_ v: NSView) {
+                v.layer?.render(in: ctx)
+                for sub in v.subviews { renderLayers(sub) }
+            }
+            renderLayers(view)
             let data = try XCTUnwrap(ctx.data)
             let bytes = data.bindMemory(to: UInt8.self, capacity: width * height * 4)
             var minX = Int.max

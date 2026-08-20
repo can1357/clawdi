@@ -40,10 +40,12 @@ While your agents work, the pet thinks along: animated dots, a badge counting li
 
 It's picky about what counts as "finished" on purpose: only the main session's titled stop fires the jump — subagents, tool loops, and background continuations stay quiet, and errors or cancels just clear silently. No confetti for a crash, no meow spam from 40 subagents.
 
+And when omp lands an edit, the pet throws the diff like an FPS damage number: a little `pi>file.ts +12 -12` pill (added green, removed red, zeros omitted) shoots off its head, arcs into the sky, and fades midair — one per edited file.
+
 Want to see the reactions without waiting for a real agent? Fire them at the running app:
 
 ```sh
-just demo complete   # complete | ask | plan | knead | all
+just demo complete   # complete | ask | plan | knead | edit | all
 ```
 
 ## Characters

@@ -17,7 +17,8 @@ dev config="Debug":
     -killall {{app}} || true
     open {{derived}}/Build/Products/{{config}}/{{app}}.app
 
-# Fire a pet reaction on the running dev build for testing (complete|ask|plan|knead|all)
+# Fire a pet reaction on the running dev build for testing (complete|ask|plan|knead|edit|all);
+# edit takes flight tuning, e.g. `just demo edit:flight=1.8,rise=0.6`
 demo name="all":
     "{{derived}}/Build/Products/Debug/{{app}}.app/Contents/MacOS/{{app}}" --clawdi-demo {{name}}
 

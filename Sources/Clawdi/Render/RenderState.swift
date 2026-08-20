@@ -99,10 +99,49 @@ struct RenderState: Sendable {
     var flourish: ReactionFlourish = .none
     /// 0..1 over the reaction badge duration while `flourish` is active.
     var flourishPhase: CGFloat = 0
+    /// Live flying diff stats (FPS damage-number style) for successful agent edits; the controller
+    /// spawns one per edited file and prunes each once its flight expires.
+    var editPops: [EditPop] = []
     /// The cat's eyes are drawn shut both while purring (content squint) and while sleeping; every
     /// renderer visibility/cache decision about the closed-eye rig keys off this, while purr-only
     /// motion (face bob, tail flick, whisker twitch) stays keyed to `purring`.
     var eyesClosed: Bool { purring || sleeping }
+}
+
+/// One flying `project>file +a -r` stat launched off the pet's head when an agent lands an edit —
+/// the FPS damage-number treatment: it pops in, flies a ballistic arc (up, over, and back down to
+/// its launch height) with a lateral drift, then fades out in place over `fadeDuration`. Motion is
+/// derived per frame from `spawnedAt` against `RenderState.time`, so the value itself never
+/// mutates after spawn.
+struct EditPop: Equatable, Sendable {
+    /// Seconds airborne (launch to landing) unless a demo event overrides it per volley.
+    static let defaultFlight: TimeInterval = 1.1
+    /// Landed fade-out appended after the flight; disappearance is implicit, never configured.
+    static let fadeDuration: TimeInterval = 0.75
+
+    var label: String
+    var added: Int
+    var removed: Int
+    var spawnedAt: TimeInterval
+    /// Seconds airborne for this pop; total lifetime is `flightTime + fadeDuration`.
+    var flightTime: TimeInterval
+    /// Launch angle in radians, π/4…3π/4 where π/2 is straight up; the horizontal range follows
+    /// ballistics (4·apex/tan(angle)), capped at the window edges.
+    var angle: CGFloat
+    /// Apex height above the launch point as a fraction of the pet square's height (0.5…0.75 by
+    /// default; demo tuning may push it to 1, still covered by the window's reserved sky room).
+    var rise: CGFloat
+
+    /// `project>file` label for an edited path: the cwd's last component plus the file name
+    /// (`/work/pi` + `/work/pi/a/b.ts` → `pi>b.ts`). No cwd → just the file name. Long file
+    /// names keep their tail (the extension is the informative part).
+    static func label(path: String, cwd: String?) -> String {
+        var file = (path as NSString).lastPathComponent
+        if file.count > 24 { file = "…" + file.suffix(23) }
+        guard let cwd, !cwd.isEmpty else { return file }
+        let project = (cwd as NSString).lastPathComponent
+        return project.isEmpty ? file : "\(project)>\(file)"
+    }
 }
 
 enum ScrollReaction {

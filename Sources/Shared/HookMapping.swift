@@ -31,6 +31,23 @@ enum AgentActivityState: String, Codable, Sendable {
     case idle, thinking, working, complete, notification, error
 }
 
+/// Per-file line-change counts for one successful agent edit. Carried on `file_edit` events and
+/// rendered by the pet as a flying `project>file +a -r` stat (see `EditPop`).
+struct FileEditStat: Codable, Equatable, Sendable {
+    var path: String
+    var added: Int
+    var removed: Int
+}
+
+/// Demo-only flight tuning for the edit-pop animation, riding a `file_edit` event: `flight` is
+/// seconds airborne (launch to landing), `rise` the apex height as a fraction of the pet square
+/// (0.5–0.75 when unset). Only `--clawdi-demo edit:flight=…,rise=…` sets it — real omp events
+/// never do — so animation timing can be iterated without rebuilding.
+struct EditPopTuning: Codable, Equatable, Sendable {
+    var flight: Double?
+    var rise: Double?
+}
+
 /// Decoded agent activity reported over the local Unix socket stream.
 ///
 /// Hook events carry their [`AgentEventSource`] so disabled integrations can be ignored even if a stale process
@@ -43,10 +60,14 @@ struct AgentStateEvent: Codable, Equatable, Sendable {
     var cwd: String?
     var title: String?
     var model: String?
+    /// Per-file ±line counts riding a `file_edit` event; nil for every other event.
+    var edits: [FileEditStat]?
+    /// Demo-only edit-pop animation overrides riding a `file_edit` event.
+    var editTuning: EditPopTuning?
     var source: AgentEventSource
 
     enum CodingKeys: String, CodingKey {
-        case agentId, sessionId, event, state, cwd, title, model, source
+        case agentId, sessionId, event, state, cwd, title, model, edits, editTuning, source
     }
 
     init(
@@ -57,6 +78,8 @@ struct AgentStateEvent: Codable, Equatable, Sendable {
         cwd: String?,
         title: String? = nil,
         model: String? = nil,
+        edits: [FileEditStat]? = nil,
+        editTuning: EditPopTuning? = nil,
         source: AgentEventSource = .direct
     ) {
         self.agentId = agentId
@@ -66,6 +89,8 @@ struct AgentStateEvent: Codable, Equatable, Sendable {
         self.cwd = cwd
         self.title = title
         self.model = model
+        self.edits = edits
+        self.editTuning = editTuning
         self.source = source
     }
 
@@ -78,6 +103,8 @@ struct AgentStateEvent: Codable, Equatable, Sendable {
         cwd = try container.decodeIfPresent(String.self, forKey: .cwd)
         title = try container.decodeIfPresent(String.self, forKey: .title)
         model = try container.decodeIfPresent(String.self, forKey: .model)
+        edits = try container.decodeIfPresent([FileEditStat].self, forKey: .edits)
+        editTuning = try container.decodeIfPresent(EditPopTuning.self, forKey: .editTuning)
         source = try container.decodeIfPresent(AgentEventSource.self, forKey: .source) ?? .legacy
     }
 
@@ -90,6 +117,8 @@ struct AgentStateEvent: Codable, Equatable, Sendable {
         try container.encodeIfPresent(cwd, forKey: .cwd)
         try container.encodeIfPresent(title, forKey: .title)
         try container.encodeIfPresent(model, forKey: .model)
+        try container.encodeIfPresent(edits, forKey: .edits)
+        try container.encodeIfPresent(editTuning, forKey: .editTuning)
         try container.encode(source, forKey: .source)
     }
 }
@@ -134,9 +163,10 @@ enum HookMapping {
             guard let state = ompState(event: event, input: input) else { return nil }
             let cwd = firstString(input, keys: ["cwd", "workspace", "project_path", "projectPath"])
             let session = string(input, keys: ["session_id", "sessionId"]) ?? cwd ?? "omp"
+            let edits = event == "file_edit" ? editStats(input) : []
             return AgentStateEvent(
                 agentId: "omp", sessionId: session, event: event, state: state, cwd: cwd, title: title, model: model,
-                source: .omp
+                edits: edits.isEmpty ? nil : edits, editTuning: edits.isEmpty ? nil : popTuning(input), source: .omp
             )
         default:
             guard let state = claudeState(event: event) else { return nil }
@@ -208,7 +238,7 @@ enum HookMapping {
         switch event {
         case "session_start", "session_shutdown": return .idle
         case "agent_start", "turn_start": return .thinking
-        case "tool_call", "tool_result": return .working
+        case "tool_call", "tool_result", "file_edit": return .working
         case "ask_prompt", "plan_approval": return .notification
         case "session_stop":
             // The only completion path. The JS hook classifies the stop payload before it reaches
@@ -262,6 +292,31 @@ enum HookMapping {
             if let value = dict[key] as? String, !value.isEmpty { return value }
         }
         return nil
+    }
+
+    /// Per-file ±line counts from an omp `file_edit` payload (synthesized by the generated
+    /// clawdi-omp-hook.js as `files: [{ path, added, removed }]`). Entries with no path or no
+    /// net change are dropped; counts are clamped non-negative and the list is capped at 8.
+    static func editStats(_ input: [String: Any]) -> [FileEditStat] {
+        guard let files = input["files"] as? [[String: Any]] else { return [] }
+        let stats = files.compactMap { file -> FileEditStat? in
+            guard let path = string(file, keys: ["path"]) else { return nil }
+            let added = max(0, (file["added"] as? NSNumber)?.intValue ?? 0)
+            let removed = max(0, (file["removed"] as? NSNumber)?.intValue ?? 0)
+            guard added > 0 || removed > 0 else { return nil }
+            return FileEditStat(path: path, added: added, removed: removed)
+        }
+        return Array(stats.prefix(8))
+    }
+
+    /// Demo-only edit-pop animation overrides from optional `flight`/`rise` numbers on a
+    /// `file_edit` payload, clamped to sane bounds (flight 0.3–6s, rise 0.1–1). Nil when neither
+    /// is present, i.e. for every real omp event.
+    static func popTuning(_ input: [String: Any]) -> EditPopTuning? {
+        let flight = (input["flight"] as? NSNumber).map { min(6, max(0.3, $0.doubleValue)) }
+        let rise = (input["rise"] as? NSNumber).map { min(1, max(0.1, $0.doubleValue)) }
+        guard flight != nil || rise != nil else { return nil }
+        return EditPopTuning(flight: flight, rise: rise)
     }
 
     /// Like `string`, but also unwraps the first element of array-valued fields (e.g. workspacePaths).
