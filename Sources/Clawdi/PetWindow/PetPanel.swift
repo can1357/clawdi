@@ -475,6 +475,10 @@ final class PetView: NSView {
 
     private static let editPopGreen = NSColor(srgbRed: 0.05, green: 0.52, blue: 0.16, alpha: 1)
     private static let editPopRed = NSColor(srgbRed: 0.83, green: 0.15, blue: 0.12, alpha: 1)
+    /// Fixed pill font. The pop-in scale is applied through the context transform, never the font
+    /// size: minting a transient NSFont per frame races CoreText's async shaping setup and crashed
+    /// with a nil-font NSInvalidArgumentException (TAttributes::ApplyFont).
+    private static let editPopFont = NSFont.monospacedSystemFont(ofSize: 11, weight: .bold)
 
     /// FPS damage numbers for agent edits: each `EditPop` is a white rounded pill reading
     /// `project>file +a -r` (`+` green, `-` red, zero counts omitted upstream) launched off the
@@ -500,13 +504,13 @@ final class PetView: NSView {
             var segments: [(text: String, color: NSColor)] = [(pop.label, .black)]
             if pop.added > 0 { segments.append((" +\(pop.added)", Self.editPopGreen)) }
             if pop.removed > 0 { segments.append((" -\(pop.removed)", Self.editPopRed)) }
-            let font = NSFont.monospacedSystemFont(ofSize: 11 * popIn, weight: .bold)
             let rendered = segments.map { segment in
                 NSAttributedString(
                     string: segment.text,
-                    attributes: [.font: font, .foregroundColor: segment.color.withAlphaComponent(alpha)])
+                    attributes: [.font: Self.editPopFont, .foregroundColor: segment.color.withAlphaComponent(alpha)])
             }
-            let textWidth = rendered.reduce(0) { $0 + $1.size().width }
+            let widths = rendered.map { $0.size().width }
+            let textWidth = widths.reduce(0, +)
             let textHeight = rendered[0].size().height
             let padX: CGFloat = 6
             let padY: CGFloat = 2.5
@@ -530,13 +534,18 @@ final class PetView: NSView {
             let pill = CGRect(
                 x: centerX - pillWidth / 2, y: centerY - pillHeight / 2,
                 width: pillWidth, height: pillHeight)
+            ctx.saveGState()
+            ctx.translateBy(x: centerX, y: centerY)
+            ctx.scaleBy(x: popIn, y: popIn)
+            ctx.translateBy(x: -centerX, y: -centerY)
             NSColor.white.withAlphaComponent(0.93 * alpha).setFill()
             NSBezierPath(roundedRect: pill, xRadius: 7, yRadius: 7).fill()
             var cursorX = pill.minX + padX
-            for run in rendered {
+            for (run, width) in zip(rendered, widths) {
                 run.draw(at: CGPoint(x: cursorX, y: pill.minY + padY))
-                cursorX += run.size().width
+                cursorX += width
             }
+            ctx.restoreGState()
         }
     }
 
