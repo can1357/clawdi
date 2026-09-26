@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Builds, signs, notarizes, and archives Clawdi for a GitHub Release.
+# Builds, signs, notarizes, and packages Clawdi for a GitHub Release: a zip of the app and a
+# drag-to-Applications disk image, each notarized and stapled.
 #
 # Required environment:
 #   APPLE_CERTIFICATE_P12        Base64-encoded Developer ID Application .p12.
@@ -10,6 +11,7 @@
 #
 # Optional environment:
 #   RELEASE_ARCHIVE              Destination for the notarized zip archive.
+#   RELEASE_DMG                  Destination for the notarized disk image.
 
 set -euo pipefail
 
@@ -30,12 +32,14 @@ fi
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 app="$root/DerivedData/Build/Products/Release/Clawdi.app"
 archive="${RELEASE_ARCHIVE:-$root/Clawdi-macos-universal.zip}"
+dmg="${RELEASE_DMG:-$root/Clawdi-macos-universal.dmg}"
 workdir="$(mktemp -d)"
 keychain="$workdir/clawdi-signing.keychain-db"
 keychain_password="$(openssl rand -hex 24)"
 certificate="$workdir/certificate.p12"
 api_key="$workdir/api-key.p8"
 notary_archive="$workdir/Clawdi.zip"
+dmg_root="$workdir/dmg"
 
 cleanup() {
     security delete-keychain "$keychain" >/dev/null 2>&1 || true
@@ -88,30 +92,48 @@ xcodebuild \
 codesign --verify --deep --strict --verbose=4 "$app"
 codesign -dvvv "$app" 2>&1 | grep -E 'Authority|TeamIdentifier|flags=|Timestamp'
 
-rm -f "$archive" "$notary_archive"
-ditto -c -k --keepParent "$app" "$notary_archive"
-submit_json="$(xcrun notarytool submit "$notary_archive" \
-    --key "$api_key" \
-    --key-id "$APPLE_API_KEY_ID" \
-    --issuer "$APPLE_API_ISSUER_ID" \
-    --wait \
-    --timeout 30m \
-    --output-format json)"
-echo "$submit_json"
-read -r status submission_id <<<"$(printf '%s' "$submit_json" | python3 -c 'import json,sys; result=json.load(sys.stdin); print(result.get("status", ""), result.get("id", ""))')"
-if [[ "$status" != "Accepted" ]]; then
-    echo "macos-release: notarization status=$status (expected Accepted)" >&2
-    if [[ -n "$submission_id" ]]; then
-        xcrun notarytool log "$submission_id" \
-            --key "$api_key" \
-            --key-id "$APPLE_API_KEY_ID" \
-            --issuer "$APPLE_API_ISSUER_ID" >&2 || true
+# Submits one artifact to Apple and waits; prints the notary log and fails unless Accepted.
+notarize() {
+    local submit_json status submission_id
+    submit_json="$(xcrun notarytool submit "$1" \
+        --key "$api_key" \
+        --key-id "$APPLE_API_KEY_ID" \
+        --issuer "$APPLE_API_ISSUER_ID" \
+        --wait \
+        --timeout 30m \
+        --output-format json)"
+    echo "$submit_json"
+    read -r status submission_id <<<"$(printf '%s' "$submit_json" | python3 -c 'import json,sys; result=json.load(sys.stdin); print(result.get("status", ""), result.get("id", ""))')"
+    if [[ "$status" != "Accepted" ]]; then
+        echo "macos-release: notarization of $(basename "$1") status=$status (expected Accepted)" >&2
+        if [[ -n "$submission_id" ]]; then
+            xcrun notarytool log "$submission_id" \
+                --key "$api_key" \
+                --key-id "$APPLE_API_KEY_ID" \
+                --issuer "$APPLE_API_ISSUER_ID" >&2 || true
+        fi
+        exit 1
     fi
-    exit 1
-fi
+}
+
+rm -f "$archive" "$notary_archive" "$dmg"
+ditto -c -k --keepParent "$app" "$notary_archive"
+notarize "$notary_archive"
 
 xcrun stapler staple "$app"
 codesign --verify --deep --strict --verbose=4 "$app"
 spctl --assess --type execute --verbose=4 "$app"
 ditto -c -k --keepParent "$app" "$archive"
 echo "macos-release: created $archive"
+
+# The disk image carries the already-stapled app (so it launches offline once copied out) next
+# to an Applications link, and gets its own signature, notarization, and staple.
+mkdir -p "$dmg_root"
+ditto "$app" "$dmg_root/Clawdi.app"
+ln -s /Applications "$dmg_root/Applications"
+hdiutil create -volname Clawdi -srcfolder "$dmg_root" -fs HFS+ -format UDZO -ov "$dmg"
+codesign --sign "$identity" --keychain "$keychain" --timestamp "$dmg"
+notarize "$dmg"
+xcrun stapler staple "$dmg"
+spctl --assess --type open --context context:primary-signature --verbose=4 "$dmg"
+echo "macos-release: created $dmg"

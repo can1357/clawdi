@@ -48,7 +48,7 @@ spctl --assess --type execute --verbose=2 DerivedData/Build/Products/Release/Cla
 
 ### GitHub releases
 
-Pushing a version tag creates a GitHub Release containing the signed, notarized, universal `Clawdi-macos-universal.zip`. From a clean `main` checkout, publish one with:
+Pushing a version tag creates a GitHub Release containing the signed, notarized, universal app twice over: `Clawdi-macos-universal.dmg` (drag-to-Applications disk image) and `Clawdi-macos-universal.zip`. From a clean `main` checkout, publish one with:
 
 ```sh
 Tools/release/publish-version.sh minor  # major | minor | patch
