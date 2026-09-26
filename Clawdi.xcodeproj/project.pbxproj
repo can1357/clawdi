@@ -9,7 +9,6 @@
 /* Begin PBXBuildFile section */
 		01993B69FC89A6C567017229 /* Reminders.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0304BA16DDC2B7D40E5BB496 /* Reminders.swift */; };
 		0BEBD77D1D552096AE11E0D1 /* siamese-cat.json in Resources */ = {isa = PBXBuildFile; fileRef = 97F9A0938C71D3AC1E74758F /* siamese-cat.json */; };
-		10E7F24C479C5511585B5F53 /* LogTailer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B66FD85D294C5C0C5E2CDB /* LogTailer.swift */; };
 		129A765AB64B3A2C08331C8A /* AgentReaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4077586B8ACBE0A8A6AE9CC /* AgentReaction.swift */; };
 		15054F788936EF7C1C3876AE /* ShareCrop.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47B184D4089471F730022363 /* ShareCrop.swift */; };
 		15B1834BA7D166A1704AC9E4 /* rusian-blue.png in Resources */ = {isa = PBXBuildFile; fileRef = 92030FA82A46B67F8AB94ABB /* rusian-blue.png */; };
@@ -122,7 +121,6 @@
 		74BDC31EFFE1ABE8763DED2D /* PermissionGuides.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PermissionGuides.swift; sourceTree = "<group>"; };
 		760A8824C899A5ADC260BE36 /* AppPaths.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppPaths.swift; sourceTree = "<group>"; };
 		793133560472910A1CBDED4A /* StretchChain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StretchChain.swift; sourceTree = "<group>"; };
-		84B66FD85D294C5C0C5E2CDB /* LogTailer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogTailer.swift; sourceTree = "<group>"; };
 		90F39D2F382D0EF600F42ACB /* CatLayerTree.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatLayerTree.swift; sourceTree = "<group>"; };
 		92030FA82A46B67F8AB94ABB /* rusian-blue.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "rusian-blue.png"; sourceTree = "<group>"; };
 		96A52A78D0DD7CD685E6ECFC /* white-cat.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "white-cat.json"; sourceTree = "<group>"; };
@@ -313,7 +311,6 @@
 				0AC7A2626AF918A1E437DE04 /* DemoCommand.swift */,
 				1AA1AFBFDD489CD171C5A200 /* HookCommand.swift */,
 				6AF27511B5B7EE454A417609 /* HookInstaller.swift */,
-				84B66FD85D294C5C0C5E2CDB /* LogTailer.swift */,
 			);
 			path = Agents;
 			sourceTree = "<group>";
@@ -537,7 +534,6 @@
 				B11A901FA5BF9B38866CBDE7 /* HookMapping.swift in Sources */,
 				77A4098D68033A38D8E5F14F /* InlineEditorOverlay.swift in Sources */,
 				7325789BE2A87C6E586603C5 /* LaunchAtLogin.swift in Sources */,
-				10E7F24C479C5511585B5F53 /* LogTailer.swift in Sources */,
 				AD6341450EB93D9C8E19B16F /* MenuBuilder.swift in Sources */,
 				7510AA5CA19411642768DF84 /* PatternEditorWindow.swift in Sources */,
 				9787AD9CE497075C006C914D /* PatternModel.swift in Sources */,

@@ -15,9 +15,10 @@ import QuartzCore
 /// silhouette. Slots whose `silhouette` flag is false (eyes, pupils) get no underlay, matching
 /// the monolithic outline's interior behavior.
 ///
-/// Poses without a layered plan (scroll, the stretch morphs, `forceMonolithic` skins, sub-2x
-/// scales) fall back to a single layer whose contents is the monolithic
-/// `render(state:scale:)` image, updated only when the frame key changes.
+/// Poses without a layered plan (scroll, the stretch morphs, `forceMonolithic` skins) fall back
+/// to a single layer whose contents is the monolithic `render(state:scale:)` image, updated only
+/// when the frame key changes. Small pets (sub-2x scales) stay layered: slots rasterize at 2x and
+/// the slot layers minify linearly onto the smaller on-screen rect.
 @MainActor
 final class CatLayerTree {
     /// Root layer; the host view adds it to its backing layer. Its transform maps the
@@ -40,6 +41,7 @@ final class CatLayerTree {
     private struct PlanKey: Equatable {
         let pose: PetPose
         let scaleBucket: Int
+        let supersampled: Bool
     }
 
     private final class SlotLayers {
@@ -80,6 +82,12 @@ final class CatLayerTree {
     /// Swap the renderer (character change) and drop every cached association.
     func replaceCompositor(_ compositor: PixelCompositor) {
         self.compositor = compositor
+        invalidateContents()
+    }
+
+    /// Forces the next `update` to re-fetch every raster, e.g. after the compositor's color
+    /// space changed underneath the current layer contents.
+    func invalidateContents() {
         planKey = nil
         fallbackKey = nil
         contentBucket = .min
@@ -98,7 +106,7 @@ final class CatLayerTree {
         if !lifting, let frame = compositor.layeredFrame(state: state, scale: scale) {
             fallbackLayer.isHidden = true
             breatheLayer.isHidden = false
-            updateTree(frame: frame, state: state, scale: scale, catRect: catRect, viewHeight: viewHeight)
+            updateTree(frame: frame, state: state, catRect: catRect, viewHeight: viewHeight)
         } else {
             breatheLayer.isHidden = true
             fallbackLayer.isHidden = false
@@ -109,18 +117,18 @@ final class CatLayerTree {
     // MARK: - Layered path
 
     private func updateTree(
-        frame: PixelCompositor.LayeredFrame, state: RenderState, scale: CGFloat, catRect: CGRect,
-        viewHeight: CGFloat
+        frame: PixelCompositor.LayeredFrame, state: RenderState, catRect: CGRect, viewHeight: CGFloat
     ) {
-        let key = PlanKey(pose: state.pose, scaleBucket: Int((max(1, scale) * 1000).rounded()))
+        let key = PlanKey(
+            pose: state.pose, scaleBucket: Int((frame.scale * 1000).rounded()), supersampled: frame.supersampled)
         if key != planKey {
             rebuild(frame: frame)
             planKey = key
             contentBucket = .min
         }
-        let bucket = compositor.slotContentBucket(state: state, scale: scale)
+        let bucket = compositor.slotContentBucket(state: state, frame: frame)
         if bucket != contentBucket || contentPattern != state.pattern {
-            reloadContents(frame: frame, state: state, scale: scale)
+            reloadContents(frame: frame, state: state)
             contentBucket = bucket
             contentPattern = state.pattern
         }
@@ -155,15 +163,20 @@ final class CatLayerTree {
         outlineGroup.sublayers?.forEach { $0.removeFromSuperlayer() }
         fillGroup.sublayers?.forEach { $0.removeFromSuperlayer() }
         slots = frame.plan.slots.map { _ in SlotLayers() }
+        // A supersampled canvas is always drawn smaller than its pixels; point-sampling that
+        // minification drops whole rows (squashed eyes), so blend instead.
+        let minification: CALayerContentsFilter = frame.supersampled ? .linear : .nearest
         for layers in slots {
+            layers.fill.minificationFilter = minification
+            layers.outline.minificationFilter = minification
             outlineGroup.addSublayer(layers.outline)
             fillGroup.addSublayer(layers.fill)
         }
     }
 
-    private func reloadContents(frame: PixelCompositor.LayeredFrame, state: RenderState, scale: CGFloat) {
+    private func reloadContents(frame: PixelCompositor.LayeredFrame, state: RenderState) {
         for (slot, layers) in zip(frame.plan.slots, slots) {
-            guard let surface = compositor.slotSurface(slot: slot, state: state, scale: scale, frame: frame) else {
+            guard let surface = compositor.slotSurface(slot: slot, state: state, frame: frame) else {
                 layers.empty = true
                 layers.fill.contents = nil
                 layers.outline.contents = nil

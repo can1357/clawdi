@@ -64,8 +64,6 @@ struct AgentReaction: Equatable {
         case "claude-code": return "Claude Code"
         case "antigravity": return "Antigravity"
         case "cursor": return "Cursor"
-        case "codex": return "Codex"
-        case "kiro": return "Kiro"
         case "omp": return "omp"
         default: return "Agent"
         }

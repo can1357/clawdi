@@ -304,7 +304,7 @@ final class ClawdiTests: XCTestCase {
         XCTAssertGreaterThan(compositor.cacheStats.outlineHits, outlineHitsBefore)
     }
 
-    func testScrollPoseBypassesFrameCacheForUnrollAnimation() throws {
+    func testScrollUnrollReusesCachedFramesWithoutFreezingTheAnimation() throws {
         let poses = try PoseLibrary.load(bundle: Bundle.main)
         let mappings = try CellMappings.load(bundle: Bundle.main)
         let compositor = PixelCompositor(library: poses, mappings: mappings)
@@ -312,10 +312,15 @@ final class ClawdiTests: XCTestCase {
         var state = RenderState()
         state.pose = .scroll
         state.time = 0.1
-        state.scrollProgress = 0.2
-        XCTAssertNotNil(compositor.render(state: state, scale: 8))
-        XCTAssertNotNil(compositor.render(state: state, scale: 8))
-        XCTAssertEqual(compositor.cacheStats.frameHits, 0)
+        state.scrollProgress = ScrollReaction.progress(startedAt: 0, now: 0.05)
+        let early = try XCTUnwrap(compositor.render(state: state, scale: 8))
+        // A later gesture replaying the same step (at a different clock time) hits the cache.
+        state.time = 7.3
+        XCTAssertTrue(compositor.render(state: state, scale: 8) === early)
+
+        state.scrollProgress = ScrollReaction.progress(startedAt: 0, now: 0.2)
+        let late = try XCTUnwrap(compositor.render(state: state, scale: 8))
+        XCTAssertNotEqual(early.dataProvider?.data, late.dataProvider?.data, "the paper must keep unrolling")
     }
 
     func testStretchDefaultFrameCacheIgnoresCursorTracking() throws {
@@ -889,19 +894,6 @@ final class ClawdiTests: XCTestCase {
             XCTAssertEqual(item.action, #selector(ClawdiController.toggleExtension(_:)))
             XCTAssertEqual(item.state, .on)
         }
-        let logMonitoring = try XCTUnwrap(menu.items.first { $0.title == "Log monitoring" }?.submenu)
-        XCTAssertEqual(logMonitoring.items.count, AgentLogSource.allCases.count)
-        for source in AgentLogSource.allCases {
-            let item = try XCTUnwrap(logMonitoring.items.first { $0.representedObject as? String == source.rawValue })
-            XCTAssertEqual(item.title, source.displayName)
-            XCTAssertEqual(item.action, #selector(ClawdiController.toggleLogMonitor(_:)))
-            XCTAssertEqual(item.state, .on)
-        }
-
-        let codex = try XCTUnwrap(logMonitoring.items.first { $0.representedObject as? String == AgentLogSource.codex.rawValue })
-        controller.toggleLogMonitor(codex)
-        XCTAssertFalse(controller.settings.enabledLogMonitors.contains(.codex))
-        XCTAssertFalse(controller.monitors.enabledSources.contains(.codex))
     }
 
     @MainActor
@@ -1327,7 +1319,9 @@ final class ClawdiTests: XCTestCase {
         XCTAssertEqual(CursorTracking.quantize(-0.19), -0.25)
 
         var tracking = CursorTracking()
-        let offsets = tracking.step(mouse: CGPoint(x: 333, y: 137), windowCenter: CGPoint(x: 100, y: 100))
+        let offsets = tracking.step(
+            mouse: CGPoint(x: 333, y: 137), windowCenter: CGPoint(x: 100, y: 100),
+            elapsed: CursorTracking.referenceTick)
         for value in [
             offsets.pupils.x, offsets.pupils.y, offsets.eyes.x, offsets.eyes.y, offsets.face.x, offsets.face.y,
             offsets.body.x, offsets.body.y,
@@ -1343,7 +1337,10 @@ final class ClawdiTests: XCTestCase {
         // to 1.625), never the runaway dx/min(400,dist) overshoot (which gave 4.0 here).
         var far = CursorTracking()
         var farOut = TrackingOffsets()
-        for _ in 0..<200 { farOut = far.step(mouse: CGPoint(x: 1100, y: 100), windowCenter: center) }
+        for _ in 0..<200 {
+            farOut = far.step(
+                mouse: CGPoint(x: 1100, y: 100), windowCenter: center, elapsed: CursorTracking.referenceTick)
+        }
         XCTAssertEqual(farOut.pupils.x, 1.625, accuracy: 0.0001)
         XCTAssertEqual(farOut.pupils.y, 0, accuracy: 0.0001)
 
@@ -1351,9 +1348,28 @@ final class ClawdiTests: XCTestCase {
         // so the pupil stays inside the sclera instead of being pinned to the edge.
         var near = CursorTracking()
         var nearOut = TrackingOffsets()
-        for _ in 0..<200 { nearOut = near.step(mouse: CGPoint(x: 140, y: 100), windowCenter: center) }
+        for _ in 0..<200 {
+            nearOut = near.step(
+                mouse: CGPoint(x: 140, y: 100), windowCenter: center, elapsed: CursorTracking.referenceTick)
+        }
         XCTAssertEqual(nearOut.pupils.x, 0.125, accuracy: 0.0001)
         XCTAssertLessThan(hypot(nearOut.pupils.x, nearOut.pupils.y), 0.3)
+    }
+
+    func testCursorTrackingSettlesAtSameWallClockSpeedAcrossFrameRates() {
+        let center = CGPoint(x: 100, y: 100)
+        let mouse = CGPoint(x: 1100, y: 100)
+        var fast = CursorTracking()
+        var fastOut = TrackingOffsets()
+        for _ in 0..<12 { fastOut = fast.step(mouse: mouse, windowCenter: center, elapsed: 1.0 / 120) }
+        var slow = CursorTracking()
+        var slowOut = TrackingOffsets()
+        for _ in 0..<3 { slowOut = slow.step(mouse: mouse, windowCenter: center, elapsed: 1.0 / 30) }
+        // 0.1 s at 120 Hz vs 30 Hz: the body (slowest layer) is mid-ease, so a per-tick ease
+        // would leave the 30 Hz rig visibly behind.
+        XCTAssertGreaterThan(fastOut.body.x, 0.25)
+        XCTAssertEqual(slowOut.body.x, fastOut.body.x, accuracy: 0.125)
+        XCTAssertEqual(slowOut.face.x, fastOut.face.x, accuracy: 0.125)
     }
 
     func testScrollReactionProgressAndVisualState() {
@@ -1955,24 +1971,22 @@ final class ClawdiTests: XCTestCase {
                 agentId: agent, sessionId: session, event: "thinking", state: .thinking, cwd: "/r", model: model)
         }
         // First-party CLIs classify by agent id; model-agnostic agents (omp) classify by the running model.
-        _ = machine.handle(active("codex", "c1"), now: 0)
         _ = machine.handle(active("claude-code", "a1"), now: 0)
         _ = machine.handle(active("omp", "o1", model: "openai-codex/gpt-5.3-codex"), now: 0)
         _ = machine.handle(active("omp", "o2", model: "anthropic/claude-sonnet-4-5"), now: 0)
         _ = machine.handle(active("omp", "o3", model: "google/gemini-3-pro"), now: 0)  // neither vendor
         _ = machine.handle(active("cursor", "x1"), now: 0)  // no model: neither
         let counts = machine.activeCounts()
-        XCTAssertEqual(counts.openai, 2)  // codex + omp gpt
+        XCTAssertEqual(counts.openai, 1)  // omp gpt
         XCTAssertEqual(counts.anthropic, 2)  // claude-code + omp claude
         // Completing the OpenAI omp session drops only that vendor.
         let done = AgentStateEvent(agentId: "omp", sessionId: "o1", event: "session_stop", state: .complete, cwd: "/r")
         _ = machine.handle(done, now: 1)
-        XCTAssertEqual(machine.activeCounts().openai, 1)
+        XCTAssertEqual(machine.activeCounts().openai, 0)
         XCTAssertEqual(machine.activeCounts().anthropic, 2)
     }
 
     func testProviderClassification() {
-        XCTAssertEqual(AgentProvider(agentId: "codex", model: nil), .openai)
         XCTAssertEqual(AgentProvider(agentId: "claude-code", model: nil), .anthropic)
         XCTAssertNil(AgentProvider(agentId: "cursor", model: nil))
         XCTAssertNil(AgentProvider(agentId: "omp", model: nil))
@@ -2824,59 +2838,6 @@ final class ClawdiTests: XCTestCase {
         let output = String(data: pipe.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8) ?? ""
         XCTAssertEqual(proc.terminationStatus, 0, "generated omp hook module must parse cleanly: \(output)")}
 
-    func testCodexKiroAndCursorSampleLogParsers() throws {
-        let codexStarted = try XCTUnwrap(
-            CodexLogParser.parse(line: #"{"type":"session_meta","payload":{"session_id":"codex-s","cwd":"/repo"}}"#))
-        XCTAssertEqual(
-            codexStarted,
-            AgentStateEvent(agentId: "codex", sessionId: "codex-s", event: "session_meta", state: .idle, cwd: "/repo"))
-        let codexTask = try XCTUnwrap(CodexLogParser.parse(line: #"{"type":"task_started","payload":{"cwd":"/repo"}}"#))
-        XCTAssertEqual(codexTask.state, .thinking)
-        XCTAssertEqual(codexTask.sessionId, "/repo")
-        XCTAssertEqual(
-            CodexLogParser.parse(line: #"{"type":"function_call","payload":{"session_id":"codex-s","cwd":"/repo"}}"#)?
-                .state, .working)
-        XCTAssertEqual(
-            CodexLogParser.parse(
-                line: #"{"type":"event","payload":{"session_id":"codex-s","cwd":"/repo","kind":"request_user_input"}}"#)?
-                .state, .notification)
-        XCTAssertEqual(
-            CodexLogParser.parse(
-                line: #"{"type":"event","payload":{"session_id":"codex-s","cwd":"/repo","kind":"require_escalated"}}"#)?
-                .state, .notification)
-        XCTAssertNil(CodexLogParser.parse(line: #"{"type":"noop","payload":{"session_id":"codex-s"}}"#))
-        XCTAssertNil(CodexLogParser.parse(line: "not json"))
-
-        XCTAssertEqual(KiroLogParser.parse(line: "INFO agent started for workspace")?.state, .thinking)
-        XCTAssertEqual(KiroLogParser.parse(line: "DEBUG starting agent run")?.state, .thinking)
-        XCTAssertEqual(KiroLogParser.parse(line: "TRACE tool call write_file")?.state, .working)
-        XCTAssertEqual(KiroLogParser.parse(line: "TRACE executing shell command")?.state, .working)
-        XCTAssertEqual(KiroLogParser.parse(line: "INFO agent completed successfully")?.state, .complete)
-        XCTAssertEqual(KiroLogParser.parse(line: "INFO run complete")?.state, .complete)
-        XCTAssertEqual(KiroLogParser.parse(line: "WARN agent aborted")?.state, .error)
-        XCTAssertEqual(KiroLogParser.parse(line: "ERROR agent failure")?.state, .error)
-        for phrase in [
-            "approval required", "permission required", "user consent requested", "requires confirmation",
-            "allow this action?",
-        ] {
-            let event = try XCTUnwrap(KiroLogParser.parse(line: "agent \(phrase)"))
-            XCTAssertEqual(event.agentId, "kiro")
-            XCTAssertEqual(event.sessionId, "kiro")
-            XCTAssertEqual(event.state, .notification)
-            XCTAssertNil(event.cwd)
-        }
-        XCTAssertNil(KiroLogParser.parse(line: "plain unrelated log line"))
-
-        XCTAssertEqual(
-            CursorLogParser.parse(line: "composer agent requires permission for terminal")?.state, .notification)
-        XCTAssertEqual(
-            CursorLogParser.parse(line: "terminal beforeShellExecution hook waiting for approval")?.state, .notification
-        )
-        XCTAssertEqual(
-            CursorLogParser.parse(line: "mcp beforeMCPExecution requires confirmation")?.state, .notification)
-        XCTAssertNil(CursorLogParser.parse(line: "permission dialog for unrelated extension"))
-    }
-
     func testShareCropCenteredNineBySixteenCrop() {
         let display = CGRect(x: 0, y: 0, width: 1440, height: 2560)
         let pet = CGRect(x: 510, y: 1200, width: 180, height: 200)
@@ -3261,12 +3222,15 @@ final class ClawdiTests: XCTestCase {
             XCTAssertGreaterThanOrEqual(maxX, minX, "render produced no dark cat pixels")
             return CGRect(x: minX, y: minY, width: maxX - minX + 1, height: maxY - minY + 1)
         }
-        var lift = RenderState()
+        // Measure the cat alone: the dark name badge is chrome, not silhouette.
+        var idle = RenderState()
+        idle.showName = false
+        var lift = idle
         lift.pose = .stretchEnd
         lift.mochiStretchActive = true
         lift.stretchT = 0.5  // controller caps the lift morph here at full pull
         lift.stretchSegmentDX = Array(repeating: 0, count: StretchChain.segmentCount)
-        var idleBox = try darkBox(RenderState())
+        var idleBox = try darkBox(idle)
         var liftBox = try darkBox(lift)
         if idleBox.midY > CGFloat(height) / 2 {
             // Offscreen pass rendered bottom-up: mirror both boxes into top-down coordinates.
@@ -3305,7 +3269,7 @@ final class ClawdiTests: XCTestCase {
 
     func testGenerationalCacheRetainsLastTwoGenerationsAfterRotation() {
         let capacity = 4
-        var cache = GenerationalCache<Int, String>(hotCapacity: capacity)
+        var cache = GenerationalCache<Int, String>(hotBudget: capacity, cost: { _ in 1 })
 
         for key in 1...12 {
             cache[key] = "value-\(key)"
@@ -3324,7 +3288,7 @@ final class ClawdiTests: XCTestCase {
 
     func testGenerationalCachePromotionKeepsReadEntryAliveAcrossManyRotations() {
         let capacity = 4
-        var cache = GenerationalCache<Int, String>(hotCapacity: capacity)
+        var cache = GenerationalCache<Int, String>(hotBudget: capacity, cost: { _ in 1 })
         cache[0] = "anchor"
 
         for key in 1...32 {
@@ -3341,7 +3305,7 @@ final class ClawdiTests: XCTestCase {
 
     func testGenerationalCacheOverwriteUpdatesWithoutRotatingAtCapacity() {
         let capacity = 2
-        var cache = GenerationalCache<Int, String>(hotCapacity: capacity)
+        var cache = GenerationalCache<Int, String>(hotBudget: capacity, cost: { _ in 1 })
         cache[1] = "one"
         cache[2] = "two"
 
@@ -3362,13 +3326,31 @@ final class ClawdiTests: XCTestCase {
         XCTAssertEqual(hotProbe[4], "four")
     }
 
+    func testGenerationalCacheRotatesByCostNotCount() {
+        var cache = GenerationalCache<String, Int>(hotBudget: 10, cost: { $0 })
+        cache["a"] = 4
+        cache["b"] = 4
+        cache["c"] = 4  // 8 + 4 > 10: a/b rotate to cold
+        cache["d"] = 8  // 4 + 8 > 10: c rotates to cold, a/b drop
+
+        let populated = cache
+        for key in ["c", "d"] {
+            var probe = populated
+            XCTAssertNotNil(probe[key], "\(key) should still be cached")
+        }
+        for key in ["a", "b"] {
+            var probe = populated
+            XCTAssertNil(probe[key], "\(key) should be evicted once newer entries exceed the byte budget")
+        }
+    }
+
     func testGenerationalCacheNilSetRemovesHotAndColdEntries() {
-        var hotCache = GenerationalCache<Int, String>(hotCapacity: 2)
+        var hotCache = GenerationalCache<Int, String>(hotBudget: 2, cost: { _ in 1 })
         hotCache[1] = "one"
         hotCache[1] = nil
         XCTAssertNil(hotCache[1])
 
-        var coldCache = GenerationalCache<Int, String>(hotCapacity: 2)
+        var coldCache = GenerationalCache<Int, String>(hotBudget: 2, cost: { _ in 1 })
         coldCache[1] = "one"
         coldCache[2] = "two"
         coldCache[3] = "three"

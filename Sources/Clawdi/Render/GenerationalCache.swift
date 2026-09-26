@@ -1,18 +1,21 @@
-/// Two-generation cache used by `PixelCompositor`'s raster caches.
+/// Two-generation cache used by `PixelCompositor`'s raster caches, bounded by value cost
+/// (bytes) rather than entry count, since one frame ranges from ~25 KB at 20 pt to ~2 MB at 400 pt.
 ///
-/// Lookups promote entries from the cold to the hot generation; when the hot generation
-/// exceeds `hotCapacity`, it becomes the new cold generation and the old cold entries are
-/// dropped. This bounds the cache at `2 * hotCapacity` entries while keeping the recently
+/// Lookups promote entries from the cold to the hot generation; when an insert would push the
+/// hot generation past `hotBudget`, it becomes the new cold generation and the old cold entries
+/// are dropped. This bounds the cache at roughly `2 * hotBudget` while keeping the recently
 /// used working set resident — unlike a wholesale `removeAll`, which forced the compositor
 /// to re-render every cached frame/outline/layer after each overflow.
 struct GenerationalCache<Key: Hashable, Value> {
-    private var hot: [Key: Value]
+    private var hot: [Key: Value] = [:]
     private var cold: [Key: Value] = [:]
-    private let hotCapacity: Int
+    private var hotCost = 0
+    private let hotBudget: Int
+    private let cost: (Value) -> Int
 
-    init(hotCapacity: Int) {
-        self.hotCapacity = hotCapacity
-        hot = Dictionary(minimumCapacity: hotCapacity)
+    init(hotBudget: Int, cost: @escaping (Value) -> Int) {
+        self.hotBudget = hotBudget
+        self.cost = cost
     }
 
     subscript(key: Key) -> Value? {
@@ -24,7 +27,7 @@ struct GenerationalCache<Key: Hashable, Value> {
         }
         set {
             guard let newValue else {
-                hot[key] = nil
+                if let old = hot.removeValue(forKey: key) { hotCost -= cost(old) }
                 cold[key] = nil
                 return
             }
@@ -32,12 +35,23 @@ struct GenerationalCache<Key: Hashable, Value> {
         }
     }
 
+    mutating func removeAll() {
+        hot.removeAll()
+        cold.removeAll()
+        hotCost = 0
+    }
+
     private mutating func insert(_ value: Value, forKey key: Key) {
-        if hot.count >= hotCapacity, hot[key] == nil {
+        let added = cost(value)
+        if let old = hot[key] {
+            hotCost -= cost(old)
+        } else if hotCost + added > hotBudget, !hot.isEmpty {
             cold = hot
-            hot = Dictionary(minimumCapacity: hotCapacity)
+            hot = [:]
+            hotCost = 0
         }
         cold[key] = nil
         hot[key] = value
+        hotCost += added
     }
 }

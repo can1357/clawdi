@@ -12,7 +12,7 @@ enum AgentOutput: Equatable, Sendable {
 /// The model vendor whose brand mark represents a running session in the thinking bubble.
 /// Classified by the running model when the hook reports one (model-agnostic agents like
 /// omp/cursor can run either vendor); otherwise by the agent's first-party vendor. Sessions
-/// that match neither (Gemini, unknown local models, kiro logs) stay unclassified.
+/// that match neither (Gemini, unknown local models) stay unclassified.
 enum AgentProvider: Equatable, Sendable {
     case openai
     case anthropic
@@ -22,11 +22,8 @@ enum AgentProvider: Equatable, Sendable {
             self = provider
             return
         }
-        switch agentId {
-        case "codex": self = .openai
-        case "claude-code": self = .anthropic
-        default: return nil
-        }
+        guard agentId == "claude-code" else { return nil }
+        self = .anthropic
     }
 
     /// Best-effort vendor from a model identifier (e.g. `anthropic/claude-sonnet-4-5`,
@@ -56,7 +53,7 @@ struct AgentProviderCounts: Equatable, Sendable {
 struct AgentStateMachine: Sendable {
     static let activeTTL: TimeInterval = 10 * 60
     static let notificationDedup: TimeInterval = 5
-    static let validAgentIds: Set<String> = ["claude-code", "antigravity", "cursor", "codex", "kiro", "omp"]
+    static let validAgentIds: Set<String> = ["claude-code", "antigravity", "cursor", "omp"]
     private struct ActiveSession {
         var deadline: TimeInterval
         var provider: AgentProvider?

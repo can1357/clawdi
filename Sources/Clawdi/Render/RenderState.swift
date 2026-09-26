@@ -149,10 +149,14 @@ enum ScrollReaction {
     static let unrollDuration: TimeInterval = 0.220
     static let paperMinHeight: CGFloat = 17
     static let paperMaxHeight: CGFloat = 32.5
+    /// Unroll progress resolution: finer than the ~26 frames a 120 Hz unroll shows, coarse
+    /// enough that every scroll gesture replays the same cached frames.
+    static let progressSteps: CGFloat = 32
 
     static func progress(startedAt: TimeInterval?, now: TimeInterval) -> CGFloat {
         guard let startedAt else { return 0 }
-        return min(1, max(0, CGFloat((now - startedAt) / unrollDuration)))
+        let raw = min(1, max(0, CGFloat((now - startedAt) / unrollDuration)))
+        return (raw * progressSteps).rounded() / progressSteps
     }
 
     static func paperHeight(progress: CGFloat) -> CGFloat {
@@ -164,9 +168,15 @@ enum ScrollReaction {
 
 struct CursorTracking {
     static let maxRawDist: CGFloat = 400
+    /// The tick length the ease amounts are tuned for (120 Hz). Longer ticks compound the ease
+    /// so the rig settles in the same wall-clock time at the 30 Hz ambient rate.
+    static let referenceTick: TimeInterval = 1.0 / 120
     private var offsets = TrackingOffsets()
 
-    mutating func step(mouse: CGPoint, windowCenter: CGPoint) -> TrackingOffsets {
+    /// Eases the rig toward the cursor over `elapsed` seconds (capped at 0.1 s so a stall
+    /// doesn't snap it).
+    mutating func step(mouse: CGPoint, windowCenter: CGPoint, elapsed: TimeInterval) -> TrackingOffsets {
+        let ticks = CGFloat(min(elapsed, 0.1) / Self.referenceTick)
         let dx = mouse.x - windowCenter.x
         let dy = mouse.y - windowCenter.y
         // Unit direction toward the cursor, scaled by min(dist,400)/400 so the deflection grows
@@ -177,10 +187,10 @@ struct CursorTracking {
         let clamped = dist > 0 ? min(dist, Self.maxRawDist) / Self.maxRawDist : 0
         let nx = dist > 0 ? (dx / dist) * clamped : 0
         let ny = dist > 0 ? (-dy / dist) * clamped : 0
-        offsets.pupils = ease(current: offsets.pupils, target: CGPoint(x: nx * 1.6, y: ny * 1.6), amount: 0.42)
-        offsets.eyes = ease(current: offsets.eyes, target: CGPoint(x: nx * 0.8, y: ny * 0.8), amount: 0.30)
-        offsets.face = ease(current: offsets.face, target: CGPoint(x: nx * 2.2, y: ny * 2.2), amount: 0.20)
-        offsets.body = ease(current: offsets.body, target: CGPoint(x: nx * 0.7, y: ny * 0.7), amount: 0.09)
+        offsets.pupils = ease(offsets.pupils, to: CGPoint(x: nx * 1.6, y: ny * 1.6), amount: 0.42, ticks: ticks)
+        offsets.eyes = ease(offsets.eyes, to: CGPoint(x: nx * 0.8, y: ny * 0.8), amount: 0.30, ticks: ticks)
+        offsets.face = ease(offsets.face, to: CGPoint(x: nx * 2.2, y: ny * 2.2), amount: 0.20, ticks: ticks)
+        offsets.body = ease(offsets.body, to: CGPoint(x: nx * 0.7, y: ny * 0.7), amount: 0.09, ticks: ticks)
         // Quantize the OUTPUT only, to whole device pixels. The eased
         // state stays continuous; quantizing it in place would feed rounded values back into the
         // ease and stall convergence below target.
@@ -192,8 +202,10 @@ struct CursorTracking {
         )
     }
 
-    private func ease(current: CGPoint, target: CGPoint, amount: CGFloat) -> CGPoint {
-        CGPoint(x: current.x + (target.x - current.x) * amount, y: current.y + (target.y - current.y) * amount)
+    /// `amount` of the remaining distance per reference tick, compounded over `ticks`.
+    private func ease(_ current: CGPoint, to target: CGPoint, amount: CGFloat, ticks: CGFloat) -> CGPoint {
+        let step = 1 - pow(1 - amount, ticks)
+        return CGPoint(x: current.x + (target.x - current.x) * step, y: current.y + (target.y - current.y) * step)
     }
 
     static func quantize(_ value: CGFloat) -> CGFloat { (value * 8).rounded() / 8 }

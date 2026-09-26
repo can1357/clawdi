@@ -42,6 +42,17 @@ struct StretchChain: Sendable {
     }
     mutating func endDrag() { dragging = false }
 
+    /// Settled with no drag in progress: `step()` is a no-op and every offset is zero.
+    var isAtRest: Bool {
+        !dragging && upOffset == 0 && stretchT == 0 && segments.allSatisfy { $0 == StretchSegment() }
+    }
+
+    /// Per-segment `cumulativeDX` for `RenderState.stretchSegmentDX`; empty while at rest so the
+    /// per-frame copy costs no allocation (the renderer reads missing segments as zero).
+    var segmentDX: [CGFloat] {
+        isAtRest ? [] : segments.indices.map(cumulativeDX)
+    }
+
     func cumulativeDX(upTo i: Int) -> CGFloat {
         guard !segments.isEmpty else { return 0 }
         let end = min(max(0, i), segments.count - 1)
@@ -51,6 +62,7 @@ struct StretchChain: Sendable {
     }
 
     mutating func step() {
+        guard !isAtRest else { return }
         if !dragging {
             upOffset += (0 - upOffset) * Self.releaseEase
             if upOffset < 0.01 { upOffset = 0 }

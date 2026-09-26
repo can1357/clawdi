@@ -15,6 +15,8 @@ final class PixelCompositor {
     // Hunting/crouch enlarges the 3px pupils inside a 5px sclera, leaving about 0.5px of safe travel.
     private static let huntingPupilScale: CGFloat = 1.33
     private static let huntingPupilTrackingScale: CGFloat = 0.31
+    /// Below this supersample scale the per-slot rasters are too coarse to reassemble cleanly:
+    /// `render(state:scale:)` rasterizes monolithically, and `layeredFrame` supersamples up to it.
     private static let layeredMinimumScale: CGFloat = 2
     /// One full thinking-time knead cycle: each front paw presses once, half a cycle apart.
     static let kneadPeriod: TimeInterval = 1.8
@@ -26,7 +28,6 @@ final class PixelCompositor {
     private let library: PoseLibrary
     private let mappings: CellMappings
     private var pathCache: [String: CGPath] = [:]
-    private var transformCache: [String: CGAffineTransform] = [:]
     private var clipPathCache: [String: [String: SceneNode]] = [:]
     private var outlineTempAlpha = [UInt8]()
     private var outlineDeque = [Int]()
@@ -38,13 +39,26 @@ final class PixelCompositor {
     /// Fixed-palette skins like `flower-claude` own their colors and must not inherit the user's
     /// tabby/cow stripes; setting this true prevents those spots from leaking onto the rig.
     var skipUserPatches = false
+    /// Space every raster is drawn in. `PetView` sets its screen's space so Core Animation can
+    /// composite layer contents as-is; any other space makes each new contents image take a
+    /// CPU color-conversion copy at commit. Changing it drops every cached raster.
+    var colorSpace = CGColorSpace(name: CGColorSpace.sRGB)! {
+        didSet {
+            guard colorSpace != oldValue else { return }
+            frameCache.removeAll()
+            layerRasterCache.removeAll()
+            outlineUnderlayCache.removeAll()
+        }
+    }
     private let affineFastPathPoses: Set<PetPose> = [
         .idle, .sleepCurl, .pressLeft, .pressRight, .jumpStart, .jumpIng, .stretchDefault,
     ]
     private var poseLayerPlanCache: [String: PoseLayerPlan] = [:]
-    private var frameCache = GenerationalCache<FrameKey, CGImage>(hotCapacity: 256)
-    private var layerRasterCache = GenerationalCache<LayerRasterKey, CachedLayerRaster>(hotCapacity: 128)
-    private var outlineUnderlayCache = GenerationalCache<OutlineKey, CGImage>(hotCapacity: 48)
+    private var frameCache = GenerationalCache<FrameKey, CGImage>(hotBudget: 16 << 20, cost: PixelCompositor.bytes)
+    private var layerRasterCache = GenerationalCache<LayerRasterKey, CachedLayerRaster>(
+        hotBudget: 32 << 20, cost: \.bytes)
+    private var outlineUnderlayCache = GenerationalCache<OutlineKey, CGImage>(
+        hotBudget: 8 << 20, cost: PixelCompositor.bytes)
     private var patternSignatureCache: (pattern: PatternModel, signature: String)?
     private(set) var cacheStats = PixelCompositorCacheStats()
 
@@ -86,6 +100,8 @@ final class PixelCompositor {
 
     private struct StretchMorph {
         let bodyRects: [RectKey: StretchRect]
+        /// `bodyRects` in paint order (ascending `endY`), sorted once instead of per frame.
+        let bodyRectsInPaintOrder: [StretchRect]
         let bodyRows: [StretchRect]
         let bodyYMin: CGFloat
         let segmentHeight: CGFloat
@@ -120,7 +136,18 @@ final class PixelCompositor {
     private enum CachedLayerRaster {
         case empty
         case raster(LayerRaster, outline: LayerRaster?)
+
+        var bytes: Int {
+            switch self {
+            case .empty: return 0
+            case .raster(let fill, let outline):
+                return PixelCompositor.bytes(fill.image) + (outline.map { PixelCompositor.bytes($0.image) } ?? 0)
+            }
+        }
     }
+
+    /// Decoded size of a raster, the cost unit of every raster cache.
+    private static func bytes(_ image: CGImage) -> Int { image.bytesPerRow * image.height }
 
     private var activeClipPaths: [String: SceneNode] = [:]
 
@@ -161,19 +188,12 @@ final class PixelCompositor {
         let renderScale = max(1, scale)
         let width = max(1, Int((viewBox.width * renderScale).rounded(.up)))
         let height = max(1, Int((viewBox.height * renderScale).rounded(.up)))
-        let frameKey = state.pose == .scroll
-            ? nil
-            : renderFrameKey(
-                state: state,
-                scale: renderScale,
-                width: width,
-                height: height
-            )
-        if let frameKey, let cached = frameCache[frameKey] {
+        let frameKey = renderFrameKey(state: state, scale: renderScale, width: width, height: height)
+        if let cached = frameCache[frameKey] {
             cacheStats.frameHits += 1
             return cached
         }
-        if frameKey != nil { cacheStats.frameMisses += 1 }
+        cacheStats.frameMisses += 1
 
         let useLayered =
             renderScale >= Self.layeredMinimumScale && affineFastPathPoses.contains(state.pose) && !forceMonolithic
@@ -210,7 +230,7 @@ final class PixelCompositor {
             )
         }
 
-        if let frameKey, let rendered {
+        if let rendered {
             frameCache[frameKey] = rendered
         }
         return rendered
@@ -241,15 +261,7 @@ final class PixelCompositor {
     private func bitmapContext(width: Int, height: Int) -> CGContext? {
         CGContext(
             data: nil, width: width, height: height, bitsPerComponent: 8, bytesPerRow: 0,
-            space: CGColorSpaceCreateDeviceRGB(), bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)
-    }
-
-    private func staticTransform(_ raw: String?) -> CGAffineTransform {
-        guard let raw, !raw.isEmpty else { return .identity }
-        if let cached = transformCache[raw] { return cached }
-        let parsed = SVGTransformParser.parse(raw)
-        transformCache[raw] = parsed
-        return parsed
+            space: colorSpace, bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)
     }
 
     private func rasterizeCat(
@@ -514,8 +526,8 @@ final class PixelCompositor {
 
     private func layerAnimCTM(slot: LayerSlot, state: RenderState, base: CGAffineTransform) -> CGAffineTransform {
         slot.ancestorChain.reduce(base) { partial, node in
-            var next = staticTransform(node.attr("transform")).concatenating(partial)
-            if !node.hasClass("breathe-anim") {
+            var next = node.transform.concatenating(partial)
+            if !node.motion.contains(.breathe) {
                 next = dynamicTransform(for: node, state: state).concatenating(next)
             }
             return next
@@ -543,11 +555,15 @@ final class PixelCompositor {
 
     /// Everything `CatLayerTree` needs to assemble one pose as GPU-composited CALayers.
     /// `base` maps viewBox units to device pixels; `width`/`height` are the device canvas.
+    /// `scale` is the supersample scale the slots rasterize at; `supersampled` marks a canvas
+    /// denser than requested, which the layer tree must minify smoothly rather than point-sample.
     struct LayeredFrame {
         let plan: PoseLayerPlan
         let base: CGAffineTransform
         let width: Int
         let height: Int
+        let scale: CGFloat
+        let supersampled: Bool
     }
 
     /// One slot's cached artwork: the cropped fill raster plus, for silhouette slots, the
@@ -559,12 +575,12 @@ final class PixelCompositor {
     }
 
     /// The layered plan for the pose, or nil when the pose must render monolithically
-    /// (non-affine morphs, sub-2x scales, `forceMonolithic` skins). Callers fall back to a
-    /// single-layer `render(state:scale:)` contents image.
+    /// (non-affine morphs, `forceMonolithic` skins). Callers fall back to a single-layer
+    /// `render(state:scale:)` contents image. Sub-2x scales supersample to 2x so small pets stay
+    /// on the GPU path instead of re-rasterizing the whole cat every frame.
     func layeredFrame(state: RenderState, scale: CGFloat) -> LayeredFrame? {
-        let renderScale = max(1, scale)
-        guard renderScale >= Self.layeredMinimumScale, affineFastPathPoses.contains(state.pose), !forceMonolithic
-        else { return nil }
+        guard affineFastPathPoses.contains(state.pose), !forceMonolithic else { return nil }
+        let renderScale = max(Self.layeredMinimumScale, scale)
         let pose = library.pose(named: state.pose.rawValue)
         let viewBox = pose.viewBoxRect
         let plan = layerPlan(for: pose, scale: renderScale, viewBox: viewBox)
@@ -573,17 +589,19 @@ final class PixelCompositor {
             plan: plan,
             base: PoseLayerPlan.baseTransform(poseName: pose.name, scale: renderScale, viewBox: viewBox),
             width: max(1, Int((viewBox.width * renderScale).rounded(.up))),
-            height: max(1, Int((viewBox.height * renderScale).rounded(.up)))
+            height: max(1, Int((viewBox.height * renderScale).rounded(.up))),
+            scale: renderScale,
+            supersampled: renderScale > max(1, scale)
         )
     }
 
     /// Cached raster surfaces for one slot; nil when the slot draws nothing for this state.
-    func slotSurface(slot: LayerSlot, state: RenderState, scale: CGFloat, frame: LayeredFrame) -> SlotSurface? {
+    func slotSurface(slot: LayerSlot, state: RenderState, frame: LayeredFrame) -> SlotSurface? {
         let pose = library.pose(named: state.pose.rawValue)
         activeClipPaths = cachedClipPaths(for: pose)
         defer { activeClipPaths.removeAll(keepingCapacity: true) }
         switch layerEntry(
-            slot: slot, pose: pose, state: state, scale: max(1, scale), width: frame.width, height: frame.height)
+            slot: slot, pose: pose, state: state, scale: frame.scale, width: frame.width, height: frame.height)
         {
         case .raster(let fill, let outline):
             return SlotSurface(
@@ -612,8 +630,8 @@ final class PixelCompositor {
 
     /// Cheap signature of everything that changes slot contents (not placement) besides the
     /// pattern, which callers compare by value: supersample scale and the heat tint bucket.
-    func slotContentBucket(state: RenderState, scale: CGFloat) -> Int {
-        (scaleBucket(max(1, scale)) << 16) | heatBucket(state)
+    func slotContentBucket(state: RenderState, frame: LayeredFrame) -> Int {
+        (scaleBucket(frame.scale) << 16) | heatBucket(state)
     }
 
     private func transformed(
@@ -659,12 +677,6 @@ final class PixelCompositor {
     ) -> CGImage? {
         let radius = outlineRadius(scale: scale)
         let outline = outlineColor(for: state.pattern)
-        if pose == .scroll {
-            guard let underlay = outlineUnderlay(cat, width: width, height: height, radius: radius, color: outline) else {
-                return coreGraphicsOutlined(cat, width: width, height: height, radius: radius, color: outline)
-            }
-            return composite(cat: cat, underlay: underlay, width: width, height: height)
-        }
 
         let key = OutlineKey(
             pose: pose,
@@ -746,7 +758,7 @@ final class PixelCompositor {
             bitsPerComponent: 8,
             bitsPerPixel: 32,
             bytesPerRow: outputRowStride,
-            space: CGColorSpaceCreateDeviceRGB(),
+            space: colorSpace,
             bitmapInfo: CGBitmapInfo(rawValue: CGImageAlphaInfo.premultipliedLast.rawValue),
             provider: provider,
             decode: nil,
@@ -863,8 +875,10 @@ final class PixelCompositor {
         }
     }
 
+    /// Outline components in `colorSpace`: the dilation writes these bytes directly, bypassing
+    /// the color matching CG applies to fills.
     private func outlineRGBA(_ color: NSColor) -> OutlineRGBA {
-        let rgb = color.usingColorSpace(.sRGB) ?? color
+        let rgb = NSColorSpace(cgColorSpace: colorSpace).flatMap(color.usingColorSpace) ?? color
         return OutlineRGBA(
             red: UInt8(clamping: Int((rgb.redComponent * 255).rounded())),
             green: UInt8(clamping: Int((rgb.greenComponent * 255).rounded())),
@@ -923,7 +937,7 @@ final class PixelCompositor {
         }
         ctx.saveGState()
         if applyRootStaticTransform || !isLayerRoot {
-            ctx.concatenate(staticTransform(node.attr("transform")))
+            ctx.concatenate(node.transform)
         }
         if applyDynamic {
             ctx.concatenate(dynamicTransform(for: node, state: state))
@@ -1232,9 +1246,7 @@ final class PixelCompositor {
                 }
             }
             if node.id == "eyes-js" { t = t.translatedBy(x: state.tracking.eyes.x, y: state.tracking.eyes.y) }
-            if node.id == "pupil-left" || node.id == "pupil-right" || node.hasClass("pupil-left")
-                || node.hasClass("pupil-right")
-            {
+            if node.motion.contains(.pupil) || node.id == "pupil-left" || node.id == "pupil-right" {
                 let tracking =
                     state.hunting
                     ? CGPoint(
@@ -1267,18 +1279,18 @@ final class PixelCompositor {
             }
         }
         let time = state.time
-        if node.hasClass("breathe-anim"), !state.hunting, !state.huntingReturn {
+        if node.motion.contains(.breathe), !state.hunting, !state.huntingReturn {
             let p = (sin(time / 3.5 * 2 * .pi - .pi / 2) + 1) / 2
             t = t.concatenating(
                 about(CGPoint(x: 16, y: 22), scaleX: 1 + 0.015 * p, y: 1 - 0.015 * p, translateY: 0.4 * p))
         }
-        if node.hasClass("tail-sway") {
+        if node.motion.contains(.tailSway) {
             let angle = Self.idleTailAngle(
                 time: time, hunting: state.hunting, purring: state.purring, sleeping: state.sleeping,
                 thinking: state.thinking, flourish: state.flourish, flourishPhase: state.flourishPhase)
             t = t.concatenating(rotate(angleDegrees: angle, around: CGPoint(x: 24, y: 31)))
         }
-        if node.hasClass("whiskers-flex") {
+        if node.motion.contains(.whiskersFlex) {
             if state.purring {
                 t = t.translatedBy(x: 0, y: sin(time / 0.42 * 2 * .pi) > 0 ? 0.6 : 0)
             } else {
@@ -1288,17 +1300,17 @@ final class PixelCompositor {
                 }
             }
         }
-        if node.hasClass("ear-twitch-l") || node.hasClass("ear-twitch-r") {
+        if !node.motion.isDisjoint(with: [.earTwitchLeft, .earTwitchRight]) {
             let ears = Self.earAngles(time: time, flourish: state.flourish, phase: state.flourishPhase)
-            let isLeft = node.hasClass("ear-twitch-l")
+            let isLeft = node.motion.contains(.earTwitchLeft)
             let angle = isLeft ? ears.left : ears.right
             if angle != 0 {
                 t = t.concatenating(
                     rotate(angleDegrees: angle, around: isLeft ? CGPoint(x: 8, y: 8) : CGPoint(x: 19, y: 9)))
             }
         }
-        if node.hasClass("eye-l-blink") || node.hasClass("eye-r-blink") {
-            let eyeCenterX: CGFloat = node.hasClass("eye-l-blink") ? 9 : 18
+        if !node.motion.isDisjoint(with: [.blinkLeft, .blinkRight]) {
+            let eyeCenterX: CGFloat = node.motion.contains(.blinkLeft) ? 9 : 18
             if state.purring {
                 t = t.concatenating(about(CGPoint(x: eyeCenterX, y: 12.5), scaleX: 1, y: 0.24, translateY: 0))
             } else if phase(time, period: 4) > 0.965 && phase(time, period: 4) < 0.99 {
@@ -1314,12 +1326,12 @@ final class PixelCompositor {
             huntingAmount = 0
         }
         if huntingAmount > 0, node.id == "face-js" { t = t.translatedBy(x: 0, y: 11 * huntingAmount) }
-        if huntingAmount > 0, node.hasClass("hunting-body-grow") {
+        if huntingAmount > 0, node.motion.contains(.huntingBodyGrow) {
             t = t.concatenating(
                 about(CGPoint(x: 16, y: 28), scaleX: 1 + 0.2 * huntingAmount, y: 1 + 0.2 * huntingAmount, translateY: 0)
             )
         }
-        if huntingAmount > 0, node.hasClass("hunting-tail-rise") { t = t.translatedBy(x: 0, y: -5 * huntingAmount) }
+        if huntingAmount > 0, node.motion.contains(.huntingTailRise) { t = t.translatedBy(x: 0, y: -5 * huntingAmount) }
         return t
     }
 
@@ -1347,7 +1359,7 @@ final class PixelCompositor {
     }
 
     private func addClipShape(_ node: SceneNode, to ctx: CGContext, state: RenderState, transform: CGAffineTransform) {
-        var transform = transform.concatenating(staticTransform(node.attr("transform")))
+        var transform = transform.concatenating(node.transform)
         if node.tag == "path", let d = node.attr("d") {
             let path: CGPath
             if let cached = pathCache[d] {
@@ -1379,7 +1391,7 @@ final class PixelCompositor {
         guard let morph = stretchMorph(), let bodyColor = color("var(--cat-color)", state: state, heatOverlay: false)
         else { return }
         ctx.setFillColor(bodyColor.cgColor)
-        for rect in morph.bodyRects.values.sorted(by: { $0.endY < $1.endY }) {
+        for rect in morph.bodyRectsInPaintOrder {
             ctx.fill(morphedRect(rect, state: state))
         }
         if skipUserPatches { return }
@@ -1604,7 +1616,8 @@ final class PixelCompositor {
             .flatMap { patchFrame($0) }
             .map { $0.minY + (firstMoveY(library.components.tailPathD) ?? 0) * $0.height } ?? 133
         let morph = StretchMorph(
-            bodyRects: bodyRects, bodyRows: rows, bodyYMin: bodyYMin, segmentHeight: segmentHeight,
+            bodyRects: bodyRects, bodyRectsInPaintOrder: bodyRects.values.sorted { $0.endY < $1.endY },
+            bodyRows: rows, bodyYMin: bodyYMin, segmentHeight: segmentHeight,
             tailStartY: tailStartY, tailEndY: tailEndY)
         stretchMorphCache = morph
         return morph

@@ -139,17 +139,14 @@ final class GlobalInputMonitor: NSObject, @unchecked Sendable {
         let callback: CGEventTapCallBack = { _, type, event, refcon in
             guard let refcon else { return Unmanaged.passUnretained(event) }
             let monitor = Unmanaged<GlobalInputMonitor>.fromOpaque(refcon).takeUnretainedValue()
-
-            if type == .tapDisabledByTimeout || type == .tapDisabledByUserInput {
-                Task { @MainActor in monitor.enableTap() }
-                return Unmanaged.passUnretained(event)
-            }
-
-            Task { @MainActor in
-                if type == .keyDown {
-                    monitor.onKeyDown?()
-                } else if type == .scrollWheel {
-                    monitor.onScroll?()
+            // The tap's run-loop source is on the main run loop, so the callback already runs on
+            // the main thread; dispatch synchronously instead of allocating a Task per event.
+            MainActor.assumeIsolated {
+                switch type {
+                case .tapDisabledByTimeout, .tapDisabledByUserInput: monitor.enableTap()
+                case .keyDown: monitor.onKeyDown?()
+                case .scrollWheel: monitor.onScroll?()
+                default: break
                 }
             }
             return Unmanaged.passUnretained(event)

@@ -118,6 +118,7 @@ final class PetView: NSView {
         catHost.layer?.addSublayer(catLayers.containerLayer)
         addSubview(catHost)
         chromeView.host = self
+        chromeView.wantsLayer = true
         chromeView.frame = bounds
         chromeView.autoresizingMask = [.width, .height]
         addSubview(chromeView)
@@ -130,10 +131,33 @@ final class PetView: NSView {
 
     /// Swap the active renderer (e.g. on a character change) and force a recomposite.
     func updateCompositor(_ compositor: PixelCompositor) {
+        if let space = screenColorSpace { compositor.colorSpace = space }
         self.compositor = compositor
         catLayers.replaceCompositor(compositor)
         lastDisplaySignature = nil
         needsLayout = true
+        refreshCatLayers()
+        chromeView.needsDisplay = true
+    }
+
+    override func viewDidMoveToWindow() {
+        super.viewDidMoveToWindow()
+        let center = NotificationCenter.default
+        for name in [NSWindow.didChangeScreenNotification, NSWindow.didChangeScreenProfileNotification] {
+            center.removeObserver(self, name: name, object: nil)
+            if let window { center.addObserver(self, selector: #selector(syncColorSpace), name: name, object: window) }
+        }
+        syncColorSpace()
+    }
+
+    private var screenColorSpace: CGColorSpace? { window?.screen?.colorSpace?.cgColorSpace }
+
+    /// Renders in the screen's color space so Core Animation composites the cat's rasters without
+    /// a per-image conversion; re-rasterizes when the window moves screens or the profile changes.
+    @objc private func syncColorSpace() {
+        guard let space = screenColorSpace, space != compositor.colorSpace else { return }
+        compositor.colorSpace = space
+        catLayers.invalidateContents()
         refreshCatLayers()
         chromeView.needsDisplay = true
     }
@@ -169,13 +193,42 @@ final class PetView: NSView {
 
     /// Transparent overlay hosting the CG-drawn chrome so it composites above the cat's
     /// layer tree; hit-testing passes through to the pet view.
+    ///
+    /// Renders into its own bitmap and hands that to the layer (`updateLayer`) rather than using
+    /// `draw(_:)`: once a window-sized `draw(_:)` view starts redrawing, AppKit's backing store
+    /// pins ~230 MB of GPU memory, versus one transient bitmap per redraw here.
     private final class ChromeView: NSView {
         weak var host: PetView?
         override var isFlipped: Bool { true }
+        override var wantsUpdateLayer: Bool { true }
         override func hitTest(_ point: NSPoint) -> NSView? { nil }
+
+        override func updateLayer() {
+            guard let host, let layer else { return }
+            let scale = window?.backingScaleFactor ?? 2
+            let width = Int((bounds.width * scale).rounded(.up))
+            let height = Int((bounds.height * scale).rounded(.up))
+            guard width > 0, height > 0,
+                let ctx = CGContext(
+                    data: nil, width: width, height: height, bitsPerComponent: 8, bytesPerRow: 0,
+                    space: host.compositor.colorSpace, bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)
+            else {
+                layer.contents = nil
+                return
+            }
+            // Match the flipped view space `draw(_:)` would have provided.
+            ctx.translateBy(x: 0, y: CGFloat(height))
+            ctx.scaleBy(x: scale, y: -scale)
+            NSGraphicsContext.saveGraphicsState()
+            NSGraphicsContext.current = NSGraphicsContext(cgContext: ctx, flipped: true)
+            host.drawChrome(in: ctx)
+            NSGraphicsContext.restoreGraphicsState()
+            layer.contents = ctx.makeImage()
+        }
+
+        /// Only reached by offscreen captures (`cacheDisplay`); on-screen display uses `updateLayer`.
         override func draw(_ dirtyRect: NSRect) {
             guard let host, let ctx = NSGraphicsContext.current?.cgContext else { return }
-            ctx.clear(dirtyRect)
             host.drawChrome(in: ctx)
         }
     }
@@ -360,11 +413,11 @@ final class PetView: NSView {
     }
 
     private func invalidateForStateChange() {
-        updateChrome()
         refreshCatLayers()
         let signature = displaySignature(for: state)
         guard signature != lastDisplaySignature else { return }
         lastDisplaySignature = signature
+        updateChrome()  // speech, its kind, and the pomodoro run state are all in the signature
         needsLayout = true
         chromeView.needsDisplay = true
     }

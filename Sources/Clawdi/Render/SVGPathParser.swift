@@ -128,12 +128,13 @@ extension Character {
 }
 
 struct SVGTransformParser {
+    private static let operation = try! NSRegularExpression(pattern: #"(translate|scale|rotate)\(([^)]*)\)"#)
+
     static func parse(_ raw: String?) -> CGAffineTransform {
         guard let raw, !raw.isEmpty else { return .identity }
         var transform = CGAffineTransform.identity
-        let re = try? NSRegularExpression(pattern: #"(translate|scale|rotate)\(([^)]*)\)"#)
         let ns = raw as NSString
-        for m in re?.matches(in: raw, range: NSRange(location: 0, length: ns.length)) ?? [] {
+        for m in operation.matches(in: raw, range: NSRange(location: 0, length: ns.length)) {
             let op = ns.substring(with: m.range(at: 1))
             let nums = ns.substring(with: m.range(at: 2)).split { $0 == " " || $0 == "," }.compactMap { Double($0) }.map
             { CGFloat($0) }

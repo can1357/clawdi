@@ -2,6 +2,9 @@ project := "Clawdi.xcodeproj"
 scheme := "Clawdi"
 app := "Clawdi"
 derived := "DerivedData"
+# Local builds target this Mac only; Release otherwise defaults to universal (arm64 + x86_64).
+# Distribution builds (`dist`, `ship`, CI) stay universal.
+local_arch := "-destination 'platform=macOS,arch=arm64' ARCHS=arm64"
 team := "VTLHGQC72S"
 dist_identity := "Developer ID Application"
 notary_profile := "clawdi-notary"
@@ -13,7 +16,7 @@ default:
 # Build (Debug|Release), kill the running app, and launch the fresh build
 dev config="Debug":
     xcodegen generate
-    xcodebuild -project {{project}} -scheme {{scheme}} -configuration {{config}} -derivedDataPath {{derived}} build
+    xcodebuild -project {{project}} -scheme {{scheme}} -configuration {{config}} -derivedDataPath {{derived}} {{local_arch}} build
     -killall {{app}} || true
     open {{derived}}/Build/Products/{{config}}/{{app}}.app
 
@@ -30,7 +33,7 @@ gen-assets:
 # Build Release and install it to /Applications
 install:
     xcodegen generate
-    xcodebuild -project {{project}} -scheme {{scheme}} -configuration Release -derivedDataPath {{derived}} build
+    xcodebuild -project {{project}} -scheme {{scheme}} -configuration Release -derivedDataPath {{derived}} {{local_arch}} build
     -killall {{app}} || true
     rm -rf /Applications/{{app}}.app
     cp -R {{derived}}/Build/Products/Release/{{app}}.app /Applications/{{app}}.app

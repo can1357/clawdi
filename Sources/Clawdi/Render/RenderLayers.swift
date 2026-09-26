@@ -98,7 +98,7 @@ struct PoseLayerPlan {
             if node.tag == "defs" || node.tag == "clipPath" { return }
 
             let boundary = DynamicVocabulary.isBoundary(node, poseName: pose.name)
-            if node.hasClass("breathe-anim"), breatheIndexPath == nil { breatheIndexPath = indexPath }
+            if node.motion.contains(.breathe), breatheIndexPath == nil { breatheIndexPath = indexPath }
             let currentLayerID = node.id ?? inheritedLayerID
             let chain = ancestors + [node]
 
@@ -121,7 +121,7 @@ struct PoseLayerPlan {
             let eyeLayerID = chain.reversed().compactMap(\.id).first { $0 == "eye-left" || $0 == "eye-right" }
             let id = layerID(for: node, inherited: eyeLayerID ?? inheritedLayerID, indexPath: indexPath)
             let rest = chain.reduce(base) { partial, node in
-                SVGTransformParser.parse(node.attr("transform")).concatenating(partial)
+                node.transform.concatenating(partial)
             }
             slots.append(
                 LayerSlot(

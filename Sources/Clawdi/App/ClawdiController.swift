@@ -11,7 +11,6 @@ final class ClawdiController: NSObject, PetViewDelegate {
     let sound = SoundPlayer()
     let input = GlobalInputMonitor()
     let agentServer = AgentStateServer()
-    let monitors = AgentLogMonitors()
     let shareOverlay = ShareOverlay()
 
     var shareCancellation: ShareRecorder.Cancellation?
@@ -27,8 +26,8 @@ final class ClawdiController: NSObject, PetViewDelegate {
     var settings: ClawdiSettings
     var pattern: PatternModel
     var pomodoro: PomodoroState
-    var lastSecondTick = Date()
-    var lastReminderCheck = Date.distantPast
+    private var clockTimer: Timer?
+    private var lastReminderCheck = Date.distantPast
     var hoverHead = false
     var purr = PurrState()
     var huntingUntil: TimeInterval = 0
@@ -58,6 +57,9 @@ final class ClawdiController: NSObject, PetViewDelegate {
     var jumpTransitionStartBubbleY: CGFloat = 0
     var lastMousePosition: CGPoint?
     private var lastInputAt: TimeInterval = CACurrentMediaTime()
+    /// Last cursor movement within tracking range of the pet; only this holds the interactive rate.
+    private var lastNearbyMouseAt: TimeInterval = CACurrentMediaTime()
+    private var lastFrameAt: TimeInterval?
     private var sleep = SleepModel()
     private var curiosity = CuriosityModel()
     private var knead = KneadMotion()
@@ -124,9 +126,6 @@ final class ClawdiController: NSObject, PetViewDelegate {
         agentServer.onSessionsExpired = { [weak self] in self?.handleAgentSessionsExpired() }
         agentServer.enabledExtensions = settings.enabledExtensions
         try? agentServer.start()
-        monitors.enabledSources = settings.enabledLogMonitors
-        monitors.emit = { [weak self] event in _ = self?.agentServerOutput(event) }
-        monitors.start()
         input.onKeyDown = { [weak self] in self?.handleKeyDown() }
         input.onScroll = { [weak self] in self?.handleScroll() }
         input.start(
@@ -134,6 +133,7 @@ final class ClawdiController: NSObject, PetViewDelegate {
             retryIfUnauthorized: !PermissionGuides.isRunningUnderXCTest, guideWindow: panel)
         reconcileHooksBestEffort()
         startDisplayLink()
+        startClock()
         scheduleStretchTimer()
     }
 
@@ -144,6 +144,8 @@ final class ClawdiController: NSObject, PetViewDelegate {
         NSObject.cancelPreviousPerformRequests(withTarget: self)
         displayLink?.invalidate()
         displayLink = nil
+        clockTimer?.invalidate()
+        clockTimer = nil
         stretchTimer?.invalidate()
         stretchTimer = nil
         focusStartTimer?.invalidate()
@@ -165,8 +167,6 @@ final class ClawdiController: NSObject, PetViewDelegate {
         agentServer.onOutput = nil
         agentServer.onSessionsExpired = nil
         agentServer.stop()
-        monitors.emit = nil
-        monitors.stop()
 
         sound.stopPurring()
 
@@ -246,12 +246,15 @@ final class ClawdiController: NSObject, PetViewDelegate {
     private enum FrameRateTier {
         case interactive
         case ambient
+        case resting
     }
     /// Full ProMotion rate: cursor tracking, drags, and one-shot motions stay at up to 120 Hz.
     private static let interactiveFrameRange = CAFrameRateRange(minimum: 30, maximum: 120, preferred: 120)
     /// Ambient rate: chrome (thinking dots, z's, hearts) animates at 24 fps and idle breathing
     /// redraws ~10x/s, so ticking faster than ~30 Hz only burned CPU between redraws.
     private static let ambientFrameRange = CAFrameRateRange(minimum: 24, maximum: 30, preferred: 30)
+    /// Asleep: only slow breathing and drifting z's move, which read fine at half the ambient rate.
+    private static let restingFrameRange = CAFrameRateRange(minimum: 10, maximum: 15, preferred: 15)
     /// How long after the last input the loop keeps the interactive rate (covers the eased
     /// cursor-tracking settle after the mouse stops).
     private static let interactiveInputWindow: TimeInterval = 2
@@ -263,6 +266,34 @@ final class ClawdiController: NSObject, PetViewDelegate {
         frameRateTier = .interactive
         displayLink = link
         link.add(to: .main, forMode: .common)
+        NotificationCenter.default.addObserver(
+            self, selector: #selector(occlusionChanged), name: NSWindow.didChangeOcclusionStateNotification,
+            object: panel)
+        occlusionChanged()
+    }
+
+    /// Nothing to draw while the pet is fully covered, on a locked screen, or on a sleeping
+    /// display; the frame clock resumes from absolute time, so pausing loses no animation state.
+    @objc private func occlusionChanged() {
+        displayLink?.isPaused = !panel.occlusionState.contains(.visible)
+    }
+
+    /// Wall-clock duties (pomodoro countdown, reminders) tick on their own 1 Hz timer so they
+    /// keep time while the display link is paused or throttled.
+    private func startClock() {
+        clockTimer?.invalidate()
+        let timer = Timer(timeInterval: 1, target: self, selector: #selector(clockTick), userInfo: nil, repeats: true)
+        timer.tolerance = 0.1
+        RunLoop.main.add(timer, forMode: .common)
+        clockTimer = timer
+    }
+
+    @objc private func clockTick() {
+        tickSecond()
+        if Date().timeIntervalSince(lastReminderCheck) >= 15 {
+            checkReminders()
+            lastReminderCheck = Date()
+        }
     }
 
     /// Downshifts the display link when nothing latency-sensitive is running and restores the
@@ -270,7 +301,7 @@ final class ClawdiController: NSObject, PetViewDelegate {
     /// the next tick, so the worst-case wake-up latency is one ambient frame (~33 ms).
     private func updateFrameRateTier(now: TimeInterval, state: RenderState) {
         let interactive =
-            now - lastInputAt < Self.interactiveInputWindow
+            now - lastNearbyMouseAt < Self.interactiveInputWindow
             || jumpStartedAt != nil
             || reactionStartedAt != nil
             || stretchInProgress
@@ -280,18 +311,27 @@ final class ClawdiController: NSObject, PetViewDelegate {
             || now < poseReleaseAt
             || state.mochiStretchActive
             || stretchChain.activity > 0.001
-        let tier: FrameRateTier = interactive ? .interactive : .ambient
+        let tier: FrameRateTier = interactive ? .interactive : sleep.sleeping ? .resting : .ambient
         guard tier != frameRateTier, let link = displayLink else { return }
         frameRateTier = tier
-        link.preferredFrameRateRange =
-            tier == .interactive ? Self.interactiveFrameRange : Self.ambientFrameRange
+        switch tier {
+        case .interactive: link.preferredFrameRateRange = Self.interactiveFrameRange
+        case .ambient: link.preferredFrameRateRange = Self.ambientFrameRange
+        case .resting: link.preferredFrameRateRange = Self.restingFrameRange
+        }
     }
 
     @objc private func frameTick(_ link: CADisplayLink) {
         let now = CACurrentMediaTime()
+        let elapsed = lastFrameAt.map { now - $0 } ?? CursorTracking.referenceTick
+        lastFrameAt = now
         let mouse = NSEvent.mouseLocation
         let mouseMoved = didMouseMove(to: mouse)
-        if mouseMoved { lastInputAt = now }
+        if mouseMoved {
+            lastInputAt = now
+            let frame = panel.frame
+            if hypot(mouse.x - frame.midX, mouse.y - frame.midY) < CursorTracking.maxRawDist { lastNearbyMouseAt = now }
+        }
         if isStretchActive(state: petView.state) {
             hoverHead = false
         } else {
@@ -319,9 +359,7 @@ final class ClawdiController: NSObject, PetViewDelegate {
         state.stretchProgress = chainActivity
         state.mochiStretchActive = chainActivity > 0.01
         state.stretchT = liftMorphT(stretchChain.stretchT)
-        state.stretchSegmentDX = (0..<StretchChain.segmentCount).map {
-            stretchChain.cumulativeDX(upTo: $0)
-        }
+        state.stretchSegmentDX = stretchChain.segmentDX
         state.stretchPoseProgress = stretchPoseEnvelope(now: now)
         if chainActivity > 0.001 || petView.stretchChain.activity > 0.001 {
             petView.stretchChain = stretchChain
@@ -360,7 +398,8 @@ final class ClawdiController: NSObject, PetViewDelegate {
         let center = CGPoint(x: panel.frame.midX, y: panel.frame.midY)
         updateSleep(now: now, state: &state)
         // A sleeping cat doesn't watch the cursor: ease the tracking rig back to neutral.
-        state.tracking = tracking.step(mouse: sleep.sleeping ? center : mouse, windowCenter: center)
+        state.tracking = tracking.step(
+            mouse: sleep.sleeping ? center : mouse, windowCenter: center, elapsed: elapsed)
         heat.stretchingTarget = now < stretchHeatUntil ? 1 : 0
         state.heat = heat.step(now: now)
         state.stretchingHeat = heat.stretchingHeat
@@ -370,7 +409,7 @@ final class ClawdiController: NSObject, PetViewDelegate {
         updatePurr(now: now, state: &state, moved: mouseMoved, mouse: mouse)
         updateCuriosity(now: now, state: &state, mouse: mouse, center: center, moved: mouseMoved)
         updateKnead(now: now, state: &state)
-        updateClickThrough()
+        updateClickThrough(mouse: mouse)
         petView.state = state
         updateFrameRateTier(now: now, state: state)
         if pendingWakeStretch {
@@ -378,14 +417,6 @@ final class ClawdiController: NSObject, PetViewDelegate {
             // and running it mid-tick would be clobbered by the assignment above.
             pendingWakeStretch = false
             runStretchSequence()
-        }
-        if Date().timeIntervalSince(lastSecondTick) >= 1 {
-            tickSecond()
-            lastSecondTick = Date()
-        }
-        if Date().timeIntervalSince(lastReminderCheck) >= 15 {
-            checkReminders()
-            lastReminderCheck = Date()
         }
     }
 
@@ -634,9 +665,9 @@ final class ClawdiController: NSObject, PetViewDelegate {
         return 3 * u * u * t * p1 + 3 * u * t * t * p2 + t * t * t
     }
 
-    private func updateClickThrough() {
+    private func updateClickThrough(mouse: CGPoint) {
         guard let window = panel, let view = petView else { return }
-        let point = view.convert(window.convertPoint(fromScreen: NSEvent.mouseLocation), from: nil)
+        let point = view.convert(window.convertPoint(fromScreen: mouse), from: nil)
         let catHit = CatHitTester.isCatHit(
             point: point, in: view.catDrawRect(), stretched: view.state.pose == .stretchEnd)
         let chromeHit = view.visibleInteractiveRects().contains { $0.contains(point) }
@@ -1016,10 +1047,6 @@ final class ClawdiController: NSObject, PetViewDelegate {
         ).reconcile(enabled: settings.enabledExtensions)
     }
 
-    private func agentServerOutput(_ event: AgentStateEvent) -> AgentOutput {
-        agentServer.handle(event)
-    }
-
     private func handleAgentOutput(_ output: AgentOutput) {
         switch output {
         case .active(let event):
@@ -1156,9 +1183,7 @@ final class ClawdiController: NSObject, PetViewDelegate {
             var state = petView.state
             state.mochiStretchActive = stretchChain.activity > 0.01
             state.stretchT = liftMorphT(stretchChain.stretchT)
-            state.stretchSegmentDX = (0..<StretchChain.segmentCount).map {
-                stretchChain.cumulativeDX(upTo: $0)
-            }
+            state.stretchSegmentDX = stretchChain.segmentDX
             petView.state = state
             return
         }
@@ -1170,9 +1195,7 @@ final class ClawdiController: NSObject, PetViewDelegate {
         state.pose = .stretchEnd
         state.mochiStretchActive = stretchChain.activity > 0.01
         state.stretchT = liftMorphT(stretchChain.stretchT)
-        state.stretchSegmentDX = (0..<StretchChain.segmentCount).map {
-            stretchChain.cumulativeDX(upTo: $0)
-        }
+        state.stretchSegmentDX = stretchChain.segmentDX
         petView.state = state
     }
 
